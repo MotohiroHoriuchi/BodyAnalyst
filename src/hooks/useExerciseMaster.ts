@@ -30,7 +30,7 @@ export function useExerciseMaster() {
       .toArray();
   };
 
-  const addExercise = async (exercise: Omit<ExerciseMaster, 'id' | 'createdAt'>) => {
+  const addExercise = async (exercise: Omit<ExerciseMaster, 'id' | 'createdAt' | 'isCustom'>) => {
     return await db.exerciseMaster.add({
       ...exercise,
       isCustom: true,

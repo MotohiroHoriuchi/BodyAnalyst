@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Play, Square, Plus, Clock } from 'lucide-react';
 import { Header, Button, Card, Modal } from '../components/common';
-import { ExerciseCard, ExerciseSearch, RestTimer, WorkoutHistory } from '../components/workout';
+import { ExerciseCard, ExerciseSearch, RestTimer, WorkoutHistory, WorkoutEditModal } from '../components/workout';
 import { useWorkoutSessions, useSettings } from '../hooks';
-import { ExerciseMaster, WorkoutExercise, WorkoutSet } from '../db/database';
+import { ExerciseMaster, WorkoutExercise, WorkoutSet, WorkoutSession } from '../db/database';
 import { formatVolume, formatDuration } from '../utils/formatters';
+import { db } from '../db/database';
+import { calculateTotalVolume } from '../utils/calculations';
 
 export function Workout() {
   const {
@@ -15,6 +17,7 @@ export function Workout() {
     addExercise,
     updateExercise,
     removeExercise,
+    deleteSession,
   } = useWorkoutSessions();
   const { settings } = useSettings();
 
@@ -22,6 +25,7 @@ export function Workout() {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isAddingExercise, setIsAddingExercise] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [editingSession, setEditingSession] = useState<WorkoutSession | null>(null);
 
   // Check for active session
   useEffect(() => {
@@ -99,6 +103,24 @@ export function Workout() {
     await removeExercise(sessionId, exerciseIndex);
   };
 
+  const handleDeleteSession = async (id: number) => {
+    await deleteSession(id);
+  };
+
+  const handleEditSession = (session: WorkoutSession) => {
+    setEditingSession(session);
+  };
+
+  const handleSaveEdit = async (id: number, exercises: WorkoutExercise[]) => {
+    const totalVolume = calculateTotalVolume(exercises);
+    await db.workoutSessions.update(id, {
+      exercises,
+      totalVolume,
+      updatedAt: new Date(),
+    });
+    setEditingSession(null);
+  };
+
   const oneRmFormula = settings?.oneRmFormula || 'epley';
 
   return (
@@ -125,7 +147,11 @@ export function Workout() {
             </Button>
 
             {/* History */}
-            <WorkoutHistory sessions={recentSessions} />
+            <WorkoutHistory
+              sessions={recentSessions}
+              onDelete={handleDeleteSession}
+              onEdit={handleEditSession}
+            />
           </>
         ) : (
           <>
@@ -182,6 +208,14 @@ export function Workout() {
           <ExerciseSearch onSelect={handleAddExercise} />
         </div>
       </Modal>
+
+      {/* Edit Workout Modal */}
+      <WorkoutEditModal
+        session={editingSession}
+        isOpen={editingSession !== null}
+        onClose={() => setEditingSession(null)}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 }

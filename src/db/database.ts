@@ -138,3 +138,57 @@ export class BodyAnalystDB extends Dexie {
 }
 
 export const db = new BodyAnalystDB();
+
+// 重複セッションを統合する関数
+export async function mergeDuplicateSessions(): Promise<void> {
+  const allSessions = await db.workoutSessions.toArray();
+
+  // 日付ごとにセッションをグループ化
+  const sessionsByDate: Record<string, WorkoutSession[]> = {};
+  allSessions.forEach(session => {
+    if (!sessionsByDate[session.date]) {
+      sessionsByDate[session.date] = [];
+    }
+    sessionsByDate[session.date].push(session);
+  });
+
+  // 重複がある日付を処理
+  for (const [date, sessions] of Object.entries(sessionsByDate)) {
+    if (sessions.length <= 1) continue;
+
+    // IDでソートして最初のセッションを基準にする
+    sessions.sort((a, b) => (a.id || 0) - (b.id || 0));
+    const primarySession = sessions[0];
+    const duplicateSessions = sessions.slice(1);
+
+    // 全ての種目を統合
+    const mergedExercises: WorkoutExercise[] = [...primarySession.exercises];
+    let mergedVolume = primarySession.totalVolume;
+
+    for (const dup of duplicateSessions) {
+      mergedExercises.push(...dup.exercises);
+      mergedVolume += dup.totalVolume;
+    }
+
+    // 最も遅い終了時間を使用
+    const endTimes = sessions.map(s => s.endTime).filter(Boolean) as Date[];
+    const latestEndTime = endTimes.length > 0
+      ? new Date(Math.max(...endTimes.map(d => new Date(d).getTime())))
+      : undefined;
+
+    // 基準セッションを更新
+    await db.workoutSessions.update(primarySession.id!, {
+      exercises: mergedExercises,
+      totalVolume: mergedVolume,
+      endTime: latestEndTime,
+      updatedAt: new Date(),
+    });
+
+    // 重複セッションを削除
+    for (const dup of duplicateSessions) {
+      await db.workoutSessions.delete(dup.id!);
+    }
+
+    console.log(`Merged ${sessions.length} sessions for date ${date}`);
+  }
+}

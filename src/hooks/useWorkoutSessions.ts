@@ -20,8 +20,16 @@ export function useWorkoutSessions() {
     const now = new Date();
     const today = getToday();
 
+    // 同じ日付のセッションがあれば、それを再開する（終了済みでも）
     const existingSession = await db.workoutSessions.where('date').equals(today).first();
-    if (existingSession && !existingSession.endTime) {
+    if (existingSession) {
+      // 終了済みの場合は再開扱いにする（endTimeをクリア）
+      if (existingSession.endTime) {
+        await db.workoutSessions.update(existingSession.id!, {
+          endTime: undefined,
+          updatedAt: now,
+        });
+      }
       return existingSession.id;
     }
 
