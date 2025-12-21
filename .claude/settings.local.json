@@ -6,7 +6,14 @@
       "Bash(npm install:*)",
       "Bash(npm run dev:*)",
       "Bash(npx tsc --noEmit)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Body Analyst MVP - ボディメイク記録PWAアプリ\n\nPhase 1 MVP機能を実装:\n\n- プロジェクトセットアップ (Vite + React + TypeScript + Tailwind CSS)\n- Dexie.js によるオフラインファースト IndexedDB データベース\n- 下部ナビゲーション + React Router によるルーティング\n- 体重記録機能（入力フォーム、タイミング、体脂肪率オプション）\n- 食事記録機能（日付選択、PFCチャート、食材検索、朝昼夕間食）\n- トレーニング記録機能（ワークアウト開始/終了、種目追加、セット記録、\n  レストタイマー、1RM推定表示）\n- ホーム画面ダッシュボード（カロリー進捗、体重、PFC、週間トレンド）\n- 分析画面（体重・カロリー・ボリューム推移グラフ）\n- 設定画面（目標設定、1RM計算式選択）\n- PWA対応設定\n\n技術スタック:\n- React 18 + TypeScript\n- Vite 5\n- Tailwind CSS 3\n- Dexie.js (IndexedDB)\n- Recharts\n- Lucide React\n- date-fns\n- vite-plugin-pwa\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(cat:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

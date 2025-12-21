@@ -42,6 +42,7 @@ export function Button({
         ${variantClasses[variant]}
         ${sizeClasses[size]}
         ${fullWidth ? 'w-full' : ''}
+        flex items-center justify-center
         font-medium rounded-xl transition-colors
         disabled:opacity-50 disabled:cursor-not-allowed
         ${className}
