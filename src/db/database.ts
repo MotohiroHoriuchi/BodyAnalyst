@@ -113,6 +113,42 @@ export interface UserSettings {
   updatedAt: Date;
 }
 
+// ========== 分析ウィンドウ ==========
+export type AnalyticsDataType =
+  | 'weight'
+  | 'bodyFat'
+  | 'calories'
+  | 'protein'
+  | 'fat'
+  | 'carbs'
+  | 'totalVolume'
+  | 'exercise_volume'
+  | 'exercise_1rm'
+  | 'exercise_maxWeight';
+
+export type ChartType = 'line' | 'bar';
+export type WindowSize = '1x1' | '1x2' | '2x2';
+
+export interface AnalyticsDataConfig {
+  dataType: AnalyticsDataType;
+  exerciseId?: number;       // exercise_* タイプの場合のみ使用
+  exerciseName?: string;
+  chartType: ChartType;
+  color: string;
+}
+
+export interface AnalyticsWindow {
+  id?: number;
+  name: string;
+  data1: AnalyticsDataConfig;
+  data2?: AnalyticsDataConfig;  // オーバーレイ用（任意）
+  periodDays: number;           // 表示期間（日数）
+  size: WindowSize;
+  order: number;                // 表示順序
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // ========== Database Class ==========
 export class BodyAnalystDB extends Dexie {
   weightRecords!: Table<WeightRecord>;
@@ -122,6 +158,7 @@ export class BodyAnalystDB extends Dexie {
   workoutSessions!: Table<WorkoutSession>;
   userGoals!: Table<UserGoal>;
   userSettings!: Table<UserSettings>;
+  analyticsWindows!: Table<AnalyticsWindow>;
 
   constructor() {
     super('BodyAnalystDB');
@@ -133,6 +170,17 @@ export class BodyAnalystDB extends Dexie {
       workoutSessions: '++id, date',
       userGoals: '++id, goalType',
       userSettings: '++id'
+    });
+
+    this.version(2).stores({
+      weightRecords: '++id, date',
+      foodMaster: '++id, name, isCustom',
+      mealRecords: '++id, date, mealType',
+      exerciseMaster: '++id, name, bodyPart, isCustom',
+      workoutSessions: '++id, date',
+      userGoals: '++id, goalType',
+      userSettings: '++id',
+      analyticsWindows: '++id, order'
     });
   }
 }
