@@ -36,7 +36,7 @@ const exerciseDataTypes: AnalyticsDataType[] = [
 
 const windowSizes: { value: WindowSize; label: string }[] = [
   { value: '1x1', label: '小 (1×1)' },
-  { value: '1x2', label: '縦長 (1×2)' },
+  { value: '2x1', label: '横長 (2×1)' },
   { value: '2x2', label: '大 (2×2)' },
 ];
 

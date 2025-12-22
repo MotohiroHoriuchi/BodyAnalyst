@@ -22,20 +22,19 @@ interface AnalyticsWindowCardProps {
   onDelete: (id: number) => void;
   onDuplicate: (id: number) => void;
   onPeriodChange: (id: number, periodDays: number) => void;
+  onResize: (id: number, size: WindowSize) => void;
   isDragging?: boolean;
 }
 
-const sizeClasses: Record<WindowSize, string> = {
-  '1x1': 'col-span-1 row-span-1',
-  '1x2': 'col-span-1 row-span-2',
-  '2x2': 'col-span-2 row-span-2',
-};
-
+// グリッド行高さ180pxに基づくチャート高さ
+// 1x1/2x1: 180px - パディング32px - ヘッダー32px - リサイズハンドル余白8px = 108px
+// 2x2: 360px - パディング32px - ヘッダー32px - リサイズハンドル余白8px = 288px
 const chartHeights: Record<WindowSize, number> = {
-  '1x1': 120,
-  '1x2': 280,
+  '1x1': 100,
+  '2x1': 100,
   '2x2': 280,
 };
+
 
 export function AnalyticsWindowCard({
   window,
@@ -43,6 +42,7 @@ export function AnalyticsWindowCard({
   onDelete,
   onDuplicate,
   onPeriodChange,
+  onResize,
   isDragging,
 }: AnalyticsWindowCardProps) {
   const { settings } = useSettings();
@@ -61,6 +61,10 @@ export function AnalyticsWindowCard({
   // ピンチジェスチャー用
   const [initialPinchDistance, setInitialPinchDistance] = useState<number | null>(null);
   const [initialPeriod, setInitialPeriod] = useState(window.periodDays);
+
+  // リサイズ用
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeStartPos, setResizeStartPos] = useState({ x: 0, y: 0 });
 
   // メニュー外クリックで閉じる
   useEffect(() => {
@@ -106,6 +110,85 @@ export function AnalyticsWindowCard({
     }
     setInitialPinchDistance(null);
   }, [initialPinchDistance, localPeriod, window.id, window.periodDays, onPeriodChange]);
+
+  // リサイズハンドルのドラッグ
+  const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setResizeStartPos({ x: clientX, y: clientY });
+  }, []);
+
+  // ドラッグ距離からサイズを計算する関数
+  const calculateNewSize = useCallback((deltaX: number, deltaY: number): WindowSize => {
+    const threshold = 50;
+
+    if (window.size === '1x1') {
+      if (deltaX > threshold && deltaY > threshold) {
+        return '2x2';
+      } else if (deltaX > threshold) {
+        return '2x1';
+      }
+    } else if (window.size === '2x1') {
+      if (deltaY > threshold) {
+        return '2x2';
+      } else if (deltaX < -threshold) {
+        return '1x1';
+      }
+    } else if (window.size === '2x2') {
+      if (deltaX < -threshold && deltaY < -threshold) {
+        return '1x1';
+      } else if (deltaY < -threshold) {
+        return '2x1';
+      }
+    }
+    return window.size;
+  }, [window.size]);
+
+  // 最後に適用したサイズを追跡（連続更新防止用）
+  const lastAppliedSize = useRef<WindowSize>(window.size);
+
+  useEffect(() => {
+    lastAppliedSize.current = window.size;
+  }, [window.size]);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleResizeMove = (e: MouseEvent | TouchEvent) => {
+      const clientX = 'touches' in e ? (e as TouchEvent).touches[0]?.clientX ?? (e as TouchEvent).changedTouches[0]?.clientX : (e as MouseEvent).clientX;
+      const clientY = 'touches' in e ? (e as TouchEvent).touches[0]?.clientY ?? (e as TouchEvent).changedTouches[0]?.clientY : (e as MouseEvent).clientY;
+
+      const deltaX = clientX - resizeStartPos.x;
+      const deltaY = clientY - resizeStartPos.y;
+
+      const newSize = calculateNewSize(deltaX, deltaY);
+
+      // リアルタイムでサイズを変更（前回と異なる場合のみ）
+      if (newSize !== lastAppliedSize.current) {
+        lastAppliedSize.current = newSize;
+        onResize(window.id!, newSize);
+      }
+    };
+
+    const handleResizeEnd = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeEnd);
+    document.addEventListener('touchmove', handleResizeMove);
+    document.addEventListener('touchend', handleResizeEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleResizeMove);
+      document.removeEventListener('mouseup', handleResizeEnd);
+      document.removeEventListener('touchmove', handleResizeMove);
+      document.removeEventListener('touchend', handleResizeEnd);
+    };
+  }, [isResizing, resizeStartPos, window.size, window.id, onResize, calculateNewSize]);
 
   // 矢印ボタンで期間変更
   const changePeriod = (delta: number) => {
@@ -182,9 +265,9 @@ export function AnalyticsWindowCard({
   return (
     <div
       ref={containerRef}
-      className={`bg-white rounded-2xl p-4 shadow-sm ${sizeClasses[window.size]} ${
+      className={`relative bg-white rounded-2xl p-4 shadow-sm h-full ${
         isDragging ? 'opacity-50 scale-95' : ''
-      } transition-transform touch-none`}
+      } ${isResizing ? 'ring-2 ring-primary-500' : ''} transition-transform`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -425,8 +508,8 @@ export function AnalyticsWindowCard({
         )}
       </div>
 
-      {/* 凡例（2データある場合） */}
-      {dataset2 && (
+      {/* 凡例（2データある場合、1x1サイズでは非表示） */}
+      {dataset2 && window.size !== '1x1' && (
         <div className="flex items-center justify-center gap-4 mt-2">
           <div className="flex items-center gap-1">
             <div
@@ -448,6 +531,31 @@ export function AnalyticsWindowCard({
           </div>
         </div>
       )}
+
+      {/* リサイズ中のインジケーター */}
+      {isResizing && (
+        <div className="absolute inset-0 rounded-2xl ring-2 ring-primary-500 pointer-events-none z-20" />
+      )}
+
+      {/* リサイズハンドル（右下角） */}
+      <div
+        onMouseDown={handleResizeStart}
+        onTouchStart={handleResizeStart}
+        className={`absolute bottom-1 right-1 w-6 h-6 cursor-se-resize group flex items-center justify-center transition-transform ${
+          isResizing ? 'scale-125' : ''
+        }`}
+        title="ドラッグでリサイズ"
+      >
+        <svg
+          className={`w-4 h-4 transition-colors ${
+            isResizing ? 'text-primary-500' : 'text-gray-300 group-hover:text-primary-500'
+          }`}
+          viewBox="0 0 16 16"
+          fill="currentColor"
+        >
+          <path d="M14 14H12V12H14V14ZM14 10H12V8H14V10ZM10 14H8V12H10V14ZM14 6H12V4H14V6ZM10 10H8V8H10V10ZM6 14H4V12H6V14Z" />
+        </svg>
+      </div>
     </div>
   );
 }
