@@ -1,9 +1,61 @@
-import { useState } from 'react';
+import { useState, useRef, useLayoutEffect, useCallback } from 'react';
 import { Plus, GripVertical, Settings2 } from 'lucide-react';
 import { Header, Button } from '../components/common';
 import { AnalyticsWindowCard, AnalyticsWindowEditModal } from '../components/analytics';
 import { useAnalyticsWindows } from '../hooks';
-import { AnalyticsWindow } from '../db/database';
+import { AnalyticsWindow, WindowSize } from '../db/database';
+
+// FLIPアニメーション用のカスタムフック
+function useFlipAnimation(windows: AnalyticsWindow[] | undefined) {
+  const positionsRef = useRef<Map<number, DOMRect>>(new Map());
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 現在の位置を記録
+  const capturePositions = useCallback(() => {
+    if (!containerRef.current) return;
+    const items = containerRef.current.querySelectorAll('[data-window-id]');
+    const newPositions = new Map<number, DOMRect>();
+    items.forEach((item) => {
+      const id = Number(item.getAttribute('data-window-id'));
+      newPositions.set(id, item.getBoundingClientRect());
+    });
+    positionsRef.current = newPositions;
+  }, []);
+
+  // 位置変更をアニメーション
+  useLayoutEffect(() => {
+    if (!containerRef.current || !windows) return;
+
+    const items = containerRef.current.querySelectorAll('[data-window-id]');
+    const oldPositions = positionsRef.current;
+
+    items.forEach((item) => {
+      const id = Number(item.getAttribute('data-window-id'));
+      const oldRect = oldPositions.get(id);
+      if (!oldRect) return;
+
+      const newRect = item.getBoundingClientRect();
+      const deltaX = oldRect.left - newRect.left;
+      const deltaY = oldRect.top - newRect.top;
+
+      if (deltaX === 0 && deltaY === 0) return;
+
+      const el = item as HTMLElement;
+      el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+      el.style.transition = 'none';
+
+      requestAnimationFrame(() => {
+        el.style.transition = 'transform 300ms ease-out';
+        el.style.transform = '';
+      });
+    });
+
+    // 新しい位置を記録
+    capturePositions();
+  }, [windows, capturePositions]);
+
+  return { containerRef, capturePositions };
+}
 
 export function Analytics() {
   const {
@@ -20,6 +72,9 @@ export function Analytics() {
   const [editingWindow, setEditingWindow] = useState<AnalyticsWindow | null>(null);
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [draggedId, setDraggedId] = useState<number | null>(null);
+
+  // FLIPアニメーション
+  const { containerRef, capturePositions } = useFlipAnimation(windows);
 
   const handleAddWindow = () => {
     setEditingWindow(null);
@@ -57,6 +112,12 @@ export function Analytics() {
     await updateWindow(id, { periodDays });
   };
 
+  const handleResizeWindow = async (id: number, newSize: WindowSize) => {
+    // アニメーション用に現在位置をキャプチャ
+    capturePositions();
+    await updateWindow(id, { size: newSize });
+  };
+
   // ドラッグ&ドロップ
   const handleDragStart = (e: React.DragEvent, id: number) => {
     setDraggedId(id);
@@ -81,6 +142,8 @@ export function Analytics() {
     const [removed] = newOrder.splice(draggedIndex, 1);
     newOrder.splice(targetIndex, 0, removed);
 
+    // アニメーション用に現在位置をキャプチャ
+    capturePositions();
     await reorderWindows(newOrder.map(w => w.id!));
     setDraggedId(null);
   };
@@ -103,6 +166,8 @@ export function Analytics() {
     const [removed] = newOrder.splice(currentIndex, 1);
     newOrder.splice(newIndex, 0, removed);
 
+    // アニメーション用に現在位置をキャプチャ
+    capturePositions();
     await reorderWindows(newOrder.map(w => w.id!));
   };
 
@@ -147,10 +212,11 @@ export function Analytics() {
 
         {/* ウィンドウグリッド */}
         {windows && windows.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 auto-rows-[160px]">
+          <div ref={containerRef} className="grid grid-cols-2 gap-3 auto-rows-[180px]">
             {windows.map((window) => (
               <div
                 key={window.id}
+                data-window-id={window.id}
                 draggable={isReorderMode}
                 onDragStart={(e) => handleDragStart(e, window.id!)}
                 onDragOver={handleDragOver}
@@ -158,7 +224,7 @@ export function Analytics() {
                 onDragEnd={handleDragEnd}
                 className={`relative ${
                   window.size === '1x1' ? 'col-span-1 row-span-1' :
-                  window.size === '1x2' ? 'col-span-1 row-span-2' :
+                  window.size === '2x1' ? 'col-span-2 row-span-1' :
                   'col-span-2 row-span-2'
                 }`}
               >
@@ -191,6 +257,7 @@ export function Analytics() {
                   onDelete={handleDeleteWindow}
                   onDuplicate={duplicateWindow}
                   onPeriodChange={handlePeriodChange}
+                  onResize={handleResizeWindow}
                   isDragging={draggedId === window.id}
                 />
               </div>

@@ -127,7 +127,8 @@ export type AnalyticsDataType =
   | 'exercise_maxWeight';
 
 export type ChartType = 'line' | 'bar';
-export type WindowSize = '1x1' | '1x2' | '2x2';
+// WindowSize: 'cols x rows' - 1x1=小, 2x1=横長, 2x2=大
+export type WindowSize = '1x1' | '2x1' | '2x2';
 
 export interface AnalyticsDataConfig {
   dataType: AnalyticsDataType;
