@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Header, Card, Button, Modal, NumberStepper } from '../components/common';
+import { Header, Card, Button, Drawer, NumberStepper } from '../components/common';
 import { useGoals, useSettings } from '../hooks';
 import { oneRmFormulas, OneRmFormula } from '../utils/oneRmCalculations';
 import { formatGoalType, goalTypeLabels } from '../utils/formatters';
@@ -89,111 +89,116 @@ export function Settings() {
         </Card>
       </main>
 
-      {/* Goal Setting Modal */}
-      <Modal
+      {/* Goal Setting Drawer */}
+      <Drawer
         isOpen={isGoalModalOpen}
         onClose={() => setIsGoalModalOpen(false)}
         title="目標設定"
       >
-        <div className="p-4 space-y-6">
-          {/* Goal Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              目標タイプ
-            </label>
-            <div className="flex gap-2">
-              {(['diet', 'maintain', 'bulk'] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setGoalType(type)}
-                  className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-colors ${
-                    goalType === type
-                      ? 'bg-primary-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {goalTypeLabels[type]}
-                </button>
-              ))}
+        <div className="flex flex-col h-full">
+          {/* 保存ボタン - 上部に配置 */}
+          <div className="flex-shrink-0 p-4 border-b border-gray-100 bg-white">
+            <Button onClick={handleSaveGoal} fullWidth size="lg">
+              保存
+            </Button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {/* Goal Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                目標タイプ
+              </label>
+              <div className="flex gap-2">
+                {(['diet', 'maintain', 'bulk'] as const).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setGoalType(type)}
+                    className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-colors ${
+                      goalType === type
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {goalTypeLabels[type]}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Target Weight */}
-          <div className="flex justify-center">
-            <NumberStepper
-              value={targetWeight}
-              onChange={setTargetWeight}
-              min={30}
-              max={200}
-              step={0.5}
-              label="目標体重"
-              unit="kg"
-            />
-          </div>
-
-          {/* Target Calories */}
-          <div className="flex justify-center">
-            <NumberStepper
-              value={targetCalories}
-              onChange={setTargetCalories}
-              min={1000}
-              max={5000}
-              step={50}
-              label="目標カロリー"
-              unit="kcal"
-            />
-          </div>
-
-          {/* PFC Targets */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="flex flex-col items-center">
+            {/* Target Weight */}
+            <div className="flex justify-center">
               <NumberStepper
-                value={targetProtein}
-                onChange={setTargetProtein}
-                min={0}
-                max={500}
-                step={5}
-                label="P (g)"
-                size="sm"
+                value={targetWeight}
+                onChange={setTargetWeight}
+                min={30}
+                max={200}
+                step={0.5}
+                label="目標体重"
+                unit="kg"
               />
             </div>
-            <div className="flex flex-col items-center">
+
+            {/* Target Calories */}
+            <div className="flex justify-center">
               <NumberStepper
-                value={targetFat}
-                onChange={setTargetFat}
-                min={0}
-                max={300}
-                step={5}
-                label="F (g)"
-                size="sm"
+                value={targetCalories}
+                onChange={setTargetCalories}
+                min={1000}
+                max={5000}
+                step={50}
+                label="目標カロリー"
+                unit="kcal"
               />
             </div>
-            <div className="flex flex-col items-center">
-              <NumberStepper
-                value={targetCarbs}
-                onChange={setTargetCarbs}
-                min={0}
-                max={600}
-                step={5}
-                label="C (g)"
-                size="sm"
-              />
+
+            {/* PFC Targets */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-col items-center">
+                <NumberStepper
+                  value={targetProtein}
+                  onChange={setTargetProtein}
+                  min={0}
+                  max={500}
+                  step={5}
+                  label="P (g)"
+                  size="sm"
+                />
+              </div>
+              <div className="flex flex-col items-center">
+                <NumberStepper
+                  value={targetFat}
+                  onChange={setTargetFat}
+                  min={0}
+                  max={300}
+                  step={5}
+                  label="F (g)"
+                  size="sm"
+                />
+              </div>
+              <div className="flex flex-col items-center">
+                <NumberStepper
+                  value={targetCarbs}
+                  onChange={setTargetCarbs}
+                  min={0}
+                  max={600}
+                  step={5}
+                  label="C (g)"
+                  size="sm"
+                />
+              </div>
             </div>
           </div>
-
-          <Button onClick={handleSaveGoal} fullWidth size="lg">
-            保存
-          </Button>
         </div>
-      </Modal>
+      </Drawer>
 
-      {/* 1RM Formula Modal */}
-      <Modal
+      {/* 1RM Formula Drawer */}
+      <Drawer
         isOpen={isFormulaModalOpen}
         onClose={() => setIsFormulaModalOpen(false)}
         title="1RM計算式の選択"
       >
-        <div className="p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {Object.values(oneRmFormulas).map((formula) => (
             <button
               key={formula.id}
@@ -212,7 +217,7 @@ export function Settings() {
             </button>
           ))}
         </div>
-      </Modal>
+      </Drawer>
     </div>
   );
 }

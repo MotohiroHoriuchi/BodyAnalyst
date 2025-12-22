@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, EmptyState, Button, Modal } from '../common';
+import { Card, EmptyState, Button, Drawer } from '../common';
 import { WorkoutSession, WorkoutExercise, WorkoutSet } from '../../db/database';
 import { getRelativeDateLabel } from '../../utils/dateUtils';
 import { formatVolume, formatBodyPart, formatMinutes } from '../../utils/formatters';
@@ -139,17 +139,15 @@ export function WorkoutHistory({ sessions, onDelete, onEdit }: WorkoutHistoryPro
         })}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      {/* Delete Confirmation Drawer */}
+      <Drawer
         isOpen={deleteConfirmId !== null}
         onClose={() => setDeleteConfirmId(null)}
         title="トレーニング記録を削除"
       >
-        <div className="p-4">
-          <p className="text-gray-700 mb-4">
-            このトレーニング記録を削除しますか？この操作は取り消せません。
-          </p>
-          <div className="flex gap-2">
+        <div className="flex flex-col h-full">
+          {/* ボタン - 上部に配置 */}
+          <div className="flex-shrink-0 flex gap-2 p-4 border-b border-gray-100 bg-white">
             <Button
               variant="secondary"
               onClick={() => setDeleteConfirmId(null)}
@@ -165,8 +163,13 @@ export function WorkoutHistory({ sessions, onDelete, onEdit }: WorkoutHistoryPro
               削除
             </Button>
           </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <p className="text-gray-700">
+              このトレーニング記録を削除しますか？この操作は取り消せません。
+            </p>
+          </div>
         </div>
-      </Modal>
+      </Drawer>
     </>
   );
 }

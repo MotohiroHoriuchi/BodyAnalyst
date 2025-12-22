@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Trash2, Check } from 'lucide-react';
-import { Card, Modal } from '../common';
+import { Card, Drawer } from '../common';
 import { SetInput } from './SetInput';
 import { OneRmDisplay } from './OneRmDisplay';
 import { WorkoutExercise, WorkoutSet } from '../../db/database';
@@ -98,19 +98,21 @@ export function ExerciseCard({ exercise, oneRmFormula, onAddSet, onRemove }: Exe
         セット追加
       </button>
 
-      {/* Set Input Modal */}
-      <Modal
+      {/* Set Input Drawer */}
+      <Drawer
         isOpen={isAddingSet}
         onClose={() => setIsAddingSet(false)}
         title="セットを記録"
       >
-        <SetInput
-          setNumber={workSets.length + 1}
-          previousSet={lastSet}
-          onSave={handleSaveSet}
-          onCancel={() => setIsAddingSet(false)}
-        />
-      </Modal>
+        <div className="flex-1 overflow-y-auto">
+          <SetInput
+            setNumber={workSets.length + 1}
+            previousSet={lastSet}
+            onSave={handleSaveSet}
+            onCancel={() => setIsAddingSet(false)}
+          />
+        </div>
+      </Drawer>
     </Card>
   );
 }

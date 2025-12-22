@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Scale, TrendingDown, TrendingUp, Minus, Plus } from 'lucide-react';
-import { Header, Card, CircularProgress, Modal } from '../components/common';
+import { Header, Card, CircularProgress, Drawer } from '../components/common';
 import { WeightInput } from '../components/weight';
 import { useWeightRecords, useMealRecords, useWorkoutSessions, useGoals } from '../hooks';
 import { formatWeight, formatCalories, formatMacro, formatVolume, formatChange, formatBodyPart } from '../utils/formatters';
@@ -189,14 +189,16 @@ export function Home() {
         )}
       </main>
 
-      {/* Weight Input Modal */}
-      <Modal
+      {/* Weight Input Drawer */}
+      <Drawer
         isOpen={isWeightModalOpen}
         onClose={() => setIsWeightModalOpen(false)}
         title="体重を記録"
       >
-        <WeightInput onComplete={() => setIsWeightModalOpen(false)} />
-      </Modal>
+        <div className="flex-1 overflow-y-auto">
+          <WeightInput onComplete={() => setIsWeightModalOpen(false)} />
+        </div>
+      </Drawer>
     </div>
   );
 }

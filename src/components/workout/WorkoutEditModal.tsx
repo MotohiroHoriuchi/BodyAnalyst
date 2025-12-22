@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button } from '../common';
+import { Drawer, Button } from '../common';
 import { WorkoutSession, WorkoutExercise, WorkoutSet } from '../../db/database';
 import { formatBodyPart } from '../../utils/formatters';
 import { Trash2, Plus } from 'lucide-react';
@@ -76,84 +76,14 @@ export function WorkoutEditModal({ session, isOpen, onClose, onSave }: WorkoutEd
   };
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={handleClose}
       title="トレーニングを編集"
     >
-      <div className="p-4 max-h-[70vh] overflow-y-auto">
-        {exercises.length === 0 ? (
-          <p className="text-center text-gray-400 py-4">種目がありません</p>
-        ) : (
-          <div className="space-y-4">
-            {exercises.map((exercise, exerciseIdx) => (
-              <div key={exerciseIdx} className="bg-gray-50 rounded-xl p-3">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <span className="font-medium text-gray-900">{exercise.exerciseName}</span>
-                    <span className="ml-2 text-xs text-gray-400">
-                      {formatBodyPart(exercise.bodyPart)}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => handleRemoveExercise(exerciseIdx)}
-                    className="p-1 text-red-400 hover:text-red-600 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Sets */}
-                <div className="space-y-2">
-                  {exercise.sets.map((set, setIdx) => (
-                    <div
-                      key={setIdx}
-                      className="flex items-center gap-2 bg-white rounded-lg p-2"
-                    >
-                      <span className={`text-xs w-12 ${set.isWarmup ? 'text-orange-500' : 'text-gray-500'}`}>
-                        {set.isWarmup ? 'W-up' : `${set.setNumber}セット`}
-                      </span>
-                      <input
-                        type="number"
-                        value={set.weight}
-                        onChange={(e) => handleUpdateSet(exerciseIdx, setIdx, 'weight', parseFloat(e.target.value) || 0)}
-                        className="w-16 px-2 py-1 text-sm bg-gray-100 rounded text-center"
-                        step="0.5"
-                      />
-                      <span className="text-xs text-gray-400">kg</span>
-                      <span className="text-gray-400">×</span>
-                      <input
-                        type="number"
-                        value={set.reps}
-                        onChange={(e) => handleUpdateSet(exerciseIdx, setIdx, 'reps', parseInt(e.target.value) || 0)}
-                        className="w-12 px-2 py-1 text-sm bg-gray-100 rounded text-center"
-                      />
-                      <span className="text-xs text-gray-400">回</span>
-                      <button
-                        onClick={() => handleRemoveSet(exerciseIdx, setIdx)}
-                        className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Add Set Button */}
-                <button
-                  onClick={() => handleAddSet(exerciseIdx)}
-                  className="w-full mt-2 py-1 text-sm text-primary-500 hover:bg-primary-50 rounded-lg transition-colors flex items-center justify-center gap-1"
-                >
-                  <Plus className="w-3 h-3" />
-                  セットを追加
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+      <div className="flex flex-col h-full">
+        {/* Action Buttons - 上部に配置 */}
+        <div className="flex-shrink-0 flex gap-2 p-4 border-b border-gray-100 bg-white">
           <Button variant="secondary" onClick={handleClose} fullWidth>
             キャンセル
           </Button>
@@ -161,7 +91,79 @@ export function WorkoutEditModal({ session, isOpen, onClose, onSave }: WorkoutEd
             保存
           </Button>
         </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {exercises.length === 0 ? (
+            <p className="text-center text-gray-400 py-4">種目がありません</p>
+          ) : (
+            <div className="space-y-4">
+              {exercises.map((exercise, exerciseIdx) => (
+                <div key={exerciseIdx} className="bg-gray-50 rounded-xl p-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <span className="font-medium text-gray-900">{exercise.exerciseName}</span>
+                      <span className="ml-2 text-xs text-gray-400">
+                        {formatBodyPart(exercise.bodyPart)}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleRemoveExercise(exerciseIdx)}
+                      className="p-1 text-red-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Sets */}
+                  <div className="space-y-2">
+                    {exercise.sets.map((set, setIdx) => (
+                      <div
+                        key={setIdx}
+                        className="flex items-center gap-2 bg-white rounded-lg p-2"
+                      >
+                        <span className={`text-xs w-12 ${set.isWarmup ? 'text-orange-500' : 'text-gray-500'}`}>
+                          {set.isWarmup ? 'W-up' : `${set.setNumber}セット`}
+                        </span>
+                        <input
+                          type="number"
+                          value={set.weight}
+                          onChange={(e) => handleUpdateSet(exerciseIdx, setIdx, 'weight', parseFloat(e.target.value) || 0)}
+                          className="w-16 px-2 py-1 text-sm bg-gray-100 rounded text-center"
+                          step="0.5"
+                        />
+                        <span className="text-xs text-gray-400">kg</span>
+                        <span className="text-gray-400">×</span>
+                        <input
+                          type="number"
+                          value={set.reps}
+                          onChange={(e) => handleUpdateSet(exerciseIdx, setIdx, 'reps', parseInt(e.target.value) || 0)}
+                          className="w-12 px-2 py-1 text-sm bg-gray-100 rounded text-center"
+                        />
+                        <span className="text-xs text-gray-400">回</span>
+                        <button
+                          onClick={() => handleRemoveSet(exerciseIdx, setIdx)}
+                          className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Add Set Button */}
+                  <button
+                    onClick={() => handleAddSet(exerciseIdx)}
+                    className="w-full mt-2 py-1 text-sm text-primary-500 hover:bg-primary-50 rounded-lg transition-colors flex items-center justify-center gap-1"
+                  >
+                    <Plus className="w-3 h-3" />
+                    セットを追加
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </Modal>
+    </Drawer>
   );
 }
