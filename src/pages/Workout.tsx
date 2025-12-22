@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Play, Square, Plus, Clock } from 'lucide-react';
-import { Header, Button, Card, Modal } from '../components/common';
+import { Header, Button, Card, Drawer } from '../components/common';
 import { ExerciseCard, ExerciseSearch, RestTimer, WorkoutHistory, WorkoutEditModal } from '../components/workout';
 import { useWorkoutSessions, useSettings } from '../hooks';
 import { ExerciseMaster, WorkoutExercise, WorkoutSet, WorkoutSession } from '../db/database';
@@ -198,16 +198,16 @@ export function Workout() {
         )}
       </main>
 
-      {/* Add Exercise Modal */}
-      <Modal
+      {/* Add Exercise Drawer */}
+      <Drawer
         isOpen={isAddingExercise}
         onClose={() => setIsAddingExercise(false)}
         title="種目を追加"
       >
-        <div className="p-4">
+        <div className="flex-1 overflow-y-auto p-4">
           <ExerciseSearch onSelect={handleAddExercise} />
         </div>
-      </Modal>
+      </Drawer>
 
       {/* Edit Workout Modal */}
       <WorkoutEditModal

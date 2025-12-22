@@ -5,5 +5,6 @@ export { CircularProgress } from './CircularProgress';
 export { DateSelector } from './DateSelector';
 export { NumberStepper } from './NumberStepper';
 export { Modal } from './Modal';
+export { Drawer } from './Drawer';
 export { Button } from './Button';
 export { EmptyState } from './EmptyState';

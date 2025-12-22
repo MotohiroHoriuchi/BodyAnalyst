@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, NumberStepper, Button } from '../common';
+import { Drawer, NumberStepper, Button } from '../common';
 import { FoodSearch } from './FoodSearch';
 import { FoodMaster, MealItem, MealRecord } from '../../db/database';
 import { calculateNutrition } from '../../utils/calculations';
@@ -47,13 +47,21 @@ export function AddFoodModal({ isOpen, onClose, onAdd }: AddFoodModalProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="食事を追加">
-      <div className="p-4 space-y-4">
-        {!selectedFood ? (
-          <FoodSearch onSelect={setSelectedFood} />
-        ) : (
-          <>
-            {/* Selected Food */}
+    <Drawer isOpen={isOpen} onClose={handleClose} title="食事を追加">
+      <div className="flex flex-col h-full">
+        {/* 追加ボタン - 上部に配置（食材選択時のみ） */}
+        {selectedFood && (
+          <div className="flex-shrink-0 p-4 border-b border-gray-100 bg-white">
+            <Button onClick={handleAdd} fullWidth size="lg">
+              追加する
+            </Button>
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {!selectedFood ? (
+            <FoodSearch onSelect={setSelectedFood} />
+          ) : (
             <div className="bg-primary-50 rounded-xl p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">{selectedFood.name}</h3>
@@ -108,14 +116,9 @@ export function AddFoodModal({ isOpen, onClose, onAdd }: AddFoodModalProps) {
                 </div>
               )}
             </div>
-
-            {/* Add Button */}
-            <Button onClick={handleAdd} fullWidth size="lg">
-              追加する
-            </Button>
-          </>
-        )}
+          )}
+        </div>
       </div>
-    </Modal>
+    </Drawer>
   );
 }

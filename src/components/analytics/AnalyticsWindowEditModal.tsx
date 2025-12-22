@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Modal, Button } from '../common';
+import { Drawer, Button } from '../common';
 import {
   AnalyticsWindow,
   AnalyticsDataConfig,
@@ -246,9 +246,23 @@ export function AnalyticsWindowEditModal({
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={editingWindow ? 'ウィンドウを編集' : '新規ウィンドウ'}>
+    <Drawer isOpen={isOpen} onClose={onClose} title={editingWindow ? 'ウィンドウを編集' : '新規ウィンドウ'}>
       <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+        {/* 保存ボタン - 上部に配置 */}
+        <div className="flex-shrink-0 flex gap-2 p-4 border-b border-gray-100 bg-white">
+          <Button variant="secondary" onClick={onClose} fullWidth>
+            キャンセル
+          </Button>
+          <Button
+            onClick={handleSave}
+            fullWidth
+            disabled={isExerciseType(data1Type) && !data1ExerciseId}
+          >
+            {editingWindow ? '更新' : '作成'}
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* ウィンドウ名 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -339,21 +353,7 @@ export function AnalyticsWindowEditModal({
             </button>
           )}
         </div>
-
-        {/* 保存ボタン - 常に表示 */}
-        <div className="flex-shrink-0 flex gap-2 p-4 border-t border-gray-100 bg-white">
-          <Button variant="secondary" onClick={onClose} fullWidth>
-            キャンセル
-          </Button>
-          <Button
-            onClick={handleSave}
-            fullWidth
-            disabled={isExerciseType(data1Type) && !data1ExerciseId}
-          >
-            {editingWindow ? '更新' : '作成'}
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </Drawer>
   );
 }
