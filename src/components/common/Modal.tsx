@@ -45,7 +45,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-60px)]">
+        <div className="flex flex-col max-h-[calc(90vh-60px)]">
           {children}
         </div>
       </div>
