@@ -12,9 +12,9 @@ interface ButtonProps {
 }
 
 const variantClasses = {
-  primary: 'bg-primary-500 hover:bg-primary-600 text-white shadow-sm',
-  secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700',
-  ghost: 'bg-transparent hover:bg-gray-100 text-gray-700',
+  primary: 'bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white shadow-md hover:shadow-lg',
+  secondary: 'bg-secondary-50 hover:bg-secondary-100 active:bg-secondary-200 text-secondary-700 border border-secondary-200',
+  ghost: 'bg-transparent hover:bg-neutral-100 active:bg-neutral-200 text-neutral-700',
 };
 
 const sizeClasses = {
@@ -42,9 +42,10 @@ export function Button({
         ${variantClasses[variant]}
         ${sizeClasses[size]}
         ${fullWidth ? 'w-full' : ''}
-        flex items-center justify-center
-        font-medium rounded-xl transition-colors
-        disabled:opacity-50 disabled:cursor-not-allowed
+        flex items-center justify-center gap-2
+        font-semibold rounded-xl transition-all duration-200
+        active:scale-[0.97]
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
         ${className}
       `}
     >

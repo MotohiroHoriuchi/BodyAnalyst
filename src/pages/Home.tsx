@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Scale, TrendingDown, TrendingUp, Minus, Plus } from 'lucide-react';
+import { Scale, TrendingDown, TrendingUp, Minus, Plus, Dumbbell, TrendingUp as ChartIcon } from 'lucide-react';
 import { Header, Card, CircularProgress, Drawer } from '../components/common';
 import { WeightInput } from '../components/weight';
 import { useWeightRecords, useMealRecords, useWorkoutSessions, useGoals } from '../hooks';
@@ -52,8 +52,8 @@ export function Home() {
 
       <main className="flex-1 px-4 py-4 pb-24 space-y-4 max-w-lg mx-auto w-full">
         {/* Today's Progress */}
-        <Card className="flex flex-col items-center py-6">
-          <h2 className="text-sm font-medium text-gray-500 mb-4">Today's Progress</h2>
+        <Card className="flex flex-col items-center py-8 animate-fade-in">
+          <h2 className="text-sm font-semibold text-neutral-600 uppercase tracking-wide mb-6">Today's Progress</h2>
           <CircularProgress
             value={todayTotals.totalCalories}
             max={currentGoal?.targetCalories || 2000}
@@ -65,23 +65,23 @@ export function Home() {
         {/* Weight & PFC Cards */}
         <div className="grid grid-cols-2 gap-4">
           {/* Weight Card */}
-          <Card onClick={() => setIsWeightModalOpen(true)}>
-            <div className="flex items-center justify-between mb-2">
+          <Card onClick={() => setIsWeightModalOpen(true)} className="animate-fade-in">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Scale className="w-4 h-4 text-primary-500" />
-                <span className="text-sm font-medium text-gray-500">体重</span>
+                <Scale className="w-5 h-5 text-primary-600" />
+                <span className="text-sm font-semibold text-neutral-700">体重</span>
               </div>
-              <Plus className="w-4 h-4 text-gray-400" />
+              <Plus className="w-4 h-4 text-neutral-400" />
             </div>
             {todayRecord ? (
               <>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-neutral-900 tracking-tight">
                   {formatWeight(todayRecord.weight).replace(' kg', '')}
-                  <span className="text-sm font-normal text-gray-500 ml-1">kg</span>
+                  <span className="text-sm font-normal text-neutral-500 ml-1">kg</span>
                 </p>
                 {weightChange && (
-                  <div className={`flex items-center gap-1 text-sm mt-1 ${
-                    weightChange.isLoss ? 'text-green-500' : weightChange.isGain ? 'text-red-500' : 'text-gray-400'
+                  <div className={`flex items-center gap-1 text-sm mt-2 ${
+                    weightChange.isLoss ? 'text-primary-600' : weightChange.isGain ? 'text-secondary-600' : 'text-neutral-400'
                   }`}>
                     {weightChange.isLoss ? (
                       <TrendingDown className="w-4 h-4" />
@@ -90,77 +90,83 @@ export function Home() {
                     ) : (
                       <Minus className="w-4 h-4" />
                     )}
-                    <span>{formatChange(weightChange.change)}</span>
+                    <span className="font-medium">{formatChange(weightChange.change)}</span>
                   </div>
                 )}
               </>
             ) : (
-              <p className="text-lg text-gray-400">タップして記録</p>
+              <p className="text-base text-neutral-400 font-medium">タップして記録</p>
             )}
           </Card>
 
           {/* PFC Card */}
-          <Card>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm">💪</span>
-              <span className="text-sm font-medium text-gray-500">PFC</span>
+          <Card className="animate-fade-in">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-5 h-5 bg-gradient-to-br from-secondary-400 to-secondary-600 rounded-md flex items-center justify-center text-white text-xs font-bold">
+                P
+              </div>
+              <span className="text-sm font-semibold text-neutral-700">PFC</span>
             </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">P</span>
-                <span className="font-medium">{formatMacro(todayTotals.totalProtein)}</span>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-neutral-500 font-medium">タンパク質</span>
+                <span className="font-bold text-neutral-900">{formatMacro(todayTotals.totalProtein)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">F</span>
-                <span className="font-medium">{formatMacro(todayTotals.totalFat)}</span>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-neutral-500 font-medium">脂質</span>
+                <span className="font-bold text-neutral-900">{formatMacro(todayTotals.totalFat)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">C</span>
-                <span className="font-medium">{formatMacro(todayTotals.totalCarbs)}</span>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-neutral-500 font-medium">炭水化物</span>
+                <span className="font-bold text-neutral-900">{formatMacro(todayTotals.totalCarbs)}</span>
               </div>
             </div>
           </Card>
         </div>
 
         {/* Today's Workout */}
-        <Card>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm">🏋️</span>
-            <span className="text-sm font-medium text-gray-500">Today's Workout</span>
+        <Card className="animate-fade-in">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-5 h-5 bg-gradient-to-br from-primary-400 to-primary-600 rounded-md flex items-center justify-center">
+              <Dumbbell className="w-3 h-3 text-white" />
+            </div>
+            <span className="text-sm font-semibold text-neutral-700">Today's Workout</span>
           </div>
           {todaySession && todaySession.exercises.length > 0 ? (
             <>
-              <p className="text-xl font-bold text-gray-900">
-                Volume: {formatVolume(todaySession.totalVolume)}
+              <p className="text-xl font-bold text-neutral-900 tracking-tight">
+                {formatVolume(todaySession.totalVolume)}
               </p>
               {workoutBodyParts && (
-                <p className="text-sm text-gray-500 mt-1">{workoutBodyParts}</p>
+                <p className="text-sm text-neutral-500 mt-2 font-medium">{workoutBodyParts}</p>
               )}
             </>
           ) : (
-            <p className="text-gray-400">トレーニングを開始しましょう</p>
+            <p className="text-neutral-400 font-medium">トレーニングを開始しましょう</p>
           )}
         </Card>
 
         {/* Weekly Trend */}
         {chartData.length > 1 && (
-          <Card>
+          <Card className="animate-fade-in">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-sm">📈</span>
-              <span className="text-sm font-medium text-gray-500">Weekly Trend</span>
+              <div className="w-5 h-5 bg-gradient-to-br from-neutral-300 to-neutral-500 rounded-md flex items-center justify-center">
+                <ChartIcon className="w-3 h-3 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-neutral-700">Weekly Trend</span>
             </div>
             <div className="h-32">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <XAxis
                     dataKey="date"
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tick={{ fontSize: 11, fill: '#948B7E', fontWeight: 500 }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
                     domain={['auto', 'auto']}
-                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tick={{ fontSize: 11, fill: '#948B7E', fontWeight: 500 }}
                     axisLine={false}
                     tickLine={false}
                     width={35}
@@ -168,19 +174,21 @@ export function Home() {
                   <Tooltip
                     contentStyle={{
                       backgroundColor: '#fff',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px',
+                      border: '1px solid #D4CFC7',
+                      borderRadius: '12px',
                       fontSize: '12px',
+                      fontWeight: 600,
+                      padding: '8px 12px',
                     }}
                     formatter={(value) => [`${value} kg`, '体重']}
                   />
                   <Line
                     type="monotone"
                     dataKey="weight"
-                    stroke="#3F83F8"
-                    strokeWidth={2}
-                    dot={{ fill: '#3F83F8', r: 4 }}
-                    activeDot={{ r: 6 }}
+                    stroke="#3D8B6A"
+                    strokeWidth={3}
+                    dot={{ fill: '#3D8B6A', r: 4, strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 6, strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>

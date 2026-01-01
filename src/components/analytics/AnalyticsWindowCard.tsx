@@ -157,7 +157,16 @@ export function AnalyticsWindowCard({
   useEffect(() => {
     if (!isResizing) return;
 
+    // リサイズ中はbodyのスクロールを無効化
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
     const handleResizeMove = (e: MouseEvent | TouchEvent) => {
+      // タッチイベントのデフォルト動作（スクロール）を防止
+      if ('touches' in e) {
+        e.preventDefault();
+      }
+
       const clientX = 'touches' in e ? (e as TouchEvent).touches[0]?.clientX ?? (e as TouchEvent).changedTouches[0]?.clientX : (e as MouseEvent).clientX;
       const clientY = 'touches' in e ? (e as TouchEvent).touches[0]?.clientY ?? (e as TouchEvent).changedTouches[0]?.clientY : (e as MouseEvent).clientY;
 
@@ -175,11 +184,15 @@ export function AnalyticsWindowCard({
 
     const handleResizeEnd = () => {
       setIsResizing(false);
+      // スクロールを再度有効化
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     };
 
     document.addEventListener('mousemove', handleResizeMove);
     document.addEventListener('mouseup', handleResizeEnd);
-    document.addEventListener('touchmove', handleResizeMove);
+    // passive: false を指定して preventDefault() を有効化
+    document.addEventListener('touchmove', handleResizeMove, { passive: false });
     document.addEventListener('touchend', handleResizeEnd);
 
     return () => {
@@ -187,6 +200,9 @@ export function AnalyticsWindowCard({
       document.removeEventListener('mouseup', handleResizeEnd);
       document.removeEventListener('touchmove', handleResizeMove);
       document.removeEventListener('touchend', handleResizeEnd);
+      // クリーンアップ時もスクロールを復元
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     };
   }, [isResizing, resizeStartPos, window.size, window.id, onResize, calculateNewSize]);
 

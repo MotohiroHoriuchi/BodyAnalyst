@@ -12,10 +12,10 @@ export function CircularProgress({
   value,
   max,
   size = 160,
-  strokeWidth = 12,
+  strokeWidth = 14,
   label,
   sublabel,
-  color = '#3F83F8',
+  color = '#3D8B6A',
 }: CircularProgressProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -31,10 +31,10 @@ export function CircularProgress({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#E5E7EB"
+          stroke="#E8E5E0"
           strokeWidth={strokeWidth}
         />
-        {/* Progress circle */}
+        {/* Progress circle with gradient */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -45,18 +45,18 @@ export function CircularProgress({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="transition-all duration-500 ease-out"
+          className="transition-all duration-700 ease-out"
+          style={{
+            filter: 'drop-shadow(0 2px 4px rgba(61, 139, 106, 0.2))',
+          }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-gray-900">
-          {Math.round(percentage)}%
+        <span className="text-3xl font-bold text-neutral-900 tracking-tight">
+          {label || `${Math.round(percentage)}%`}
         </span>
-        {label && (
-          <span className="text-sm text-gray-500 mt-1">{label}</span>
-        )}
         {sublabel && (
-          <span className="text-xs text-gray-400">{sublabel}</span>
+          <span className="text-sm text-neutral-500 mt-1 font-medium">{sublabel}</span>
         )}
       </div>
     </div>
