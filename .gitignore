@@ -28,3 +28,7 @@ npm-debug.log*
 .cache/
 *.tsbuildinfo
 statics/
+
+# Personal notes
+docs/プロジェクト理解ノート.md
+docs/React概要.md
