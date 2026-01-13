@@ -1,0 +1,19 @@
+description = "Stage, commit, and push all changes in one go."
+prompt = """
+You are an expert developer. Perform the following steps strictly in order:
+
+1. **Stage & Commit:**
+    - Check `git status`.
+    - Run `git add .` to stage all changes.
+    - Analyze the staged changes (diff) to generate a conventional commit message.
+    - Run `git commit -m "<message>"`.
+
+2. **Push:**
+    - Run `git push`.
+    - If it fails due to missing upstream, run `git push --set-upstream origin <current_branch>`.
+
+Report the final status.
+
+Current Status:
+!{git status}
+"""

@@ -1,0 +1,9 @@
+description = "Push the current branch to origin, setting upstream if needed."
+prompt = """
+1. Attempt to run `git push`.
+2. If it fails because the upstream is not set, identify the current branch name and run `git push --set-upstream origin <branch_name>`.
+3. Confirm the push was successful.
+
+Current Branch:
+!{git branch --show-current}
+"""

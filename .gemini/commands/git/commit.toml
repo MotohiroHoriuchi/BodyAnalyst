@@ -1,0 +1,15 @@
+description = "Stage all changes and commit with an AI-generated message."
+prompt = """
+You are an expert developer.
+1. Run `git status` and `git diff --staged` to understand the changes.
+2. If there are changes not staged, run `git add .` to stage them.
+3. Generate a concise, conventional commit message (e.g., `feat: ...`, `fix: ...`, `docs: ...`) based on the changes.
+4. Execute `git commit -m "<message>"`.
+5. Report the result.
+
+Current Status:
+!{git status}
+
+Staged Diff:
+!{git diff --staged}
+"""
