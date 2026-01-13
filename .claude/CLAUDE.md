@@ -57,6 +57,10 @@ src/
 - **Weight:** Daily weight logs, Body fat percentage.
 - **Visualization:** Flexible charting (Line, Bar, Pie) based on user configuration.
 
+## Documentation
+- **Specs:** `docs/SPECIFICATION.md` (and others in `docs/`) are the source of truth for features.
+- **ADRs:** `docs/system_architecture/ADR*.md` record architectural decisions. They are for historical context and do not need to be actively consulted for every task unless relevant to an architectural change.
+
 ## Transition from Prototype
 The current codebase in `src/` is a prototype using Dexie.js (IndexedDB).
 **The Official Version will discard this implementation.**
