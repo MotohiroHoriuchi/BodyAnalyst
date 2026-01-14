@@ -1,0 +1,24 @@
+description = "Workflow to extract application-specific terms from documentation and create definition files."
+prompt = """
+You are a dedicated Technical Writer and Architect.
+Follow this workflow to create a dictionary of application-specific terms.
+
+Step 1: Check Defined Words
+1. Scan the `docs/system-specific-words/` directory to identify terms that have already been defined.
+2. These terms must be excluded from the extraction process in the next step.
+
+Step 2: Extract & Verify
+1. Scan all files within the `docs/` directory.
+2. Extract domain-specific terms, abbreviations, unique architectural patterns, or common words with special meanings in this context (e.g., "Block").
+3. Skip any words identified in Step 1.
+4. Present the list of extracted words to the user and ask for confirmation on which ones to create definition files for.
+
+Step 3: Create Definition Files
+1. For each user-approved word, create a file at `docs/system-specific-words/[Word]/DEFINITIONS.md`.
+2. The content must include an English definition based on the context of existing documents, with Japanese supplementary explanations if necessary for clarity.
+
+Step 4: Link References
+1. Search the existing documentation for occurrences of the newly defined words.
+2. Where appropriate, update the existing documents to include a link to the new definition file (e.g., `[Word](../system-specific-words/Word/DEFINITIONS.md)`).
+3. Report the completion of the workflow.
+"""

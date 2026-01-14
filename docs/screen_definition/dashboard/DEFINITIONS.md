@@ -1,7 +1,7 @@
 # Screen Definition: Dashboard (TOP)
 
 ## Overview
-The Dashboard is the customizable home screen of the application. Unlike a fixed layout, it serves as a canvas where users can arrange and resize various "Graph Blocks" to visualize their data according to their preferences.
+The Dashboard is the customizable home screen of the application. Unlike a fixed layout, it serves as a canvas where users can arrange and resize various "[Graph Blocks](../../system-specific-words/Block/DEFINITIONS.md)" to visualize their data according to their preferences.
 
 ## Key Features
 
