@@ -47,4 +47,4 @@ Background colors are based on achromatic tones to maximize the visibility of da
 
 ## 6. Related Documents
 - [Dashboard Block Visual Specifications](../dashboard_blocks/SPECIFICATIONS.md)
-- [Dashboard Screen Definitions](../../screen_definition/dashboard/DEFINITIONS.md)
+- [Dashboard Screen Definitions](../../screen_definition/dashboard/SPECIFICATIONS.md)

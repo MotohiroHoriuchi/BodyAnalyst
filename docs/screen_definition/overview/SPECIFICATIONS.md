@@ -6,10 +6,10 @@ This document defines the main screens of the BodyAnalyst application.
 
 | Screen Name | Description | Link |
 | :--- | :--- | :--- |
-| **Dashboard (TOP)** | Overview of user activities and goals. | [DEFINITIONS.md](../dashboard/DEFINITIONS.md) |
+| **Dashboard (TOP)** | Overview of user activities and goals. | [SPECIFICATIONS.md](../dashboard/SPECIFICATIONS.md) |
 | **Workout Record** | Interface for logging exercise sessions. | [DEFINITIONS.md](../workout/DEFINITIONS.md) |
 | **Meal Record** | Interface for logging food intake. | [DEFINITIONS.md](../meal/DEFINITIONS.md) |
-| **Body Composition Record** | Interface for logging physical metrics. | [DEFINITIONS.md](../body_composition/DEFINITIONS.md) |
+| **Body Composition Record** | Interface for logging physical metrics. | [SPECIFICATIONS.md](../body_composition/SPECIFICATIONS.md) |
 
 ## Summary of Main Screens
 

@@ -43,4 +43,4 @@ Each dashboard block is defined by the following state object:
 
 ## 5. References
 - [Visualization Engine Specifications](../visualization_engine/SPECIFICATIONS.md)
-- [Dashboard Screen Definitions](../../screen_definition/dashboard/DEFINITIONS.md)
+- [Dashboard Screen Definitions](../../screen_definition/dashboard/SPECIFICATIONS.md)
