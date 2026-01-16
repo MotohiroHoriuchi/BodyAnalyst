@@ -1,0 +1,12 @@
+description = "Analyze the project and add missing tasks to the list."
+prompt = """
+Goal: Update the task list with necessary missing tasks.
+
+Steps:
+1.  Read the existing task files in `docs/agent-tasks/architecting/`.
+2.  Explore the `docs/` directory to understand the current system architecture and design specifications.
+3.  Identify gaps between the design/specifications and the current implementation (or current task list).
+4.  Propose a list of new tasks to bridge these gaps, numbering them clearly.
+5.  Ask the user which tasks to add.
+6.  Append the selected tasks to the most appropriate file in `docs/agent-tasks/architecting/` (or create a new one if needed).
+"""

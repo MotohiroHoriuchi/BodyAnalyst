@@ -1,0 +1,9 @@
+description = "List all incomplete tasks from the architecting task lists."
+prompt = """
+Goal: Display a consolidated list of all incomplete tasks.
+
+Steps:
+1. List all markdown files in `docs/agent-tasks/architecting/`.
+2. Read each file.
+3. Extract and display all lines containing `- [ ]` (incomplete tasks), grouped by the file they belong to.
+"""
