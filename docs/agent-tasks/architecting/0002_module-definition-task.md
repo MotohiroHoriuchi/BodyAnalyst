@@ -28,5 +28,8 @@
 システム全体の共通ルールや非機能要件を定義する。
 
 - [x] `docs/system_architecture/routing/SPECIFICATIONS.md` (ルーティング設計：URL、遷移、ガード)
-- [ ] `docs/system_architecture/error-handling/SPECIFICATIONS.md` (エラーハンドリング戦略：境界、通知)
+- [x] `docs/system_architecture/error-handling/SPECIFICATIONS.md` (エラーハンドリング戦略：境界、通知)
 - [ ] `docs/system_architecture/testing/SPECIFICATIONS.md` (テスト戦略：範囲、ツール、カバレッジ)
+    - [ ] `docs/Inbox/testing_strategy_draft.md` (v1向けドラフトの一時保存)
+    - [ ] `docs/technology-research/persistence-layer-comparison.md` (技術解説：IndexedDB vs Google Spreadsheet)
+    - [ ] `docs/technology-research/testing-tools-comparison.md` (技術解説：TypeScriptテストツール比較)
