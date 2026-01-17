@@ -2,6 +2,10 @@ description = "Analyze the project and add missing tasks to the list."
 prompt = """
 Goal: Update the task list with necessary missing tasks.
 
+Constraints:
+1. All responses and interactions must be in Japanese.
+2. Do not add tasks related to coding or implementation. Focus on design, documentation, and architecture.
+
 Steps:
 1.  Read the existing task files in `docs/agent-tasks/architecting/`.
 2.  Explore the `docs/` directory to understand the current system architecture and design specifications.

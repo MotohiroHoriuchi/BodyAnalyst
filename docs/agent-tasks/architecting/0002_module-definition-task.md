@@ -17,8 +17,16 @@
 ## 基盤・共通モジュール (Core & Infrastructure)
 機能モジュールを支える下位レイヤーの仕様を定義する。
 
-- [ ] `docs/module-definition/core/SPECIFICATIONS.md` (共通UIコンポーネント、汎用フック)
+- [x] `docs/module-definition/core/SPECIFICATIONS.md` (共通UIコンポーネント、汎用フック)
+    - [x] `docs/module-definition/core/SPECIFICATIONS.md` (概要)
+    - [x] `docs/module-definition/core/components/SPECIFICATIONS.md` (UIコンポーネント詳細 - 分割・移動)
+    - [x] `docs/module-definition/core/utils/SPECIFICATIONS.md` (ユーティリティ詳細 - 分割・移動)
 - [x] `docs/module-definition/infrastructure/SPECIFICATIONS.md` (DB接続、リポジトリパターン、データ型変換)
 
 ## 全体整合性確認
-- [ ] 全モジュールの定義完了後、Overviewドキュメントとの整合性を確認する。
+- [ ] 全モジュールの定義完了後、Overviewドキュメントとの整合性を確認する。\n## アーキテクチャ設計 (System Architecture)
+システム全体の共通ルールや非機能要件を定義する。
+
+- [ ] `docs/system_architecture/routing/SPECIFICATIONS.md` (ルーティング設計：URL、遷移、ガード)
+- [ ] `docs/system_architecture/error-handling/SPECIFICATIONS.md` (エラーハンドリング戦略：境界、通知)
+- [ ] `docs/system_architecture/testing/SPECIFICATIONS.md` (テスト戦略：範囲、ツール、カバレッジ)

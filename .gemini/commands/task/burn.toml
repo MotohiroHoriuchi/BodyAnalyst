@@ -2,9 +2,12 @@ description = "Prioritize and execute a task from the list."
 prompt = """
 Goal: Select and execute a high-priority task.
 
+Constraints:
+1. All responses and interactions must be in Japanese.
+
 Steps:
 1.  Read all files in `docs/agent-tasks/architecting/` to find incomplete tasks (`- [ ]`).
-2.  Analyze the tasks and propose a prioritized order of execution, explaining your reasoning (dependencies, risk, value).
+2.  Analyze the tasks and propose a prioritized order of execution, explaining your reasoning (dependencies, risk, value) in Japanese.
 3.  Ask the user to confirm which task to start.
 4.  Once confirmed, execute the task.
     *   If it involves coding, use the necessary tools.

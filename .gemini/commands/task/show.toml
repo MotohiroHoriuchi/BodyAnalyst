@@ -2,6 +2,9 @@ description = "List all incomplete tasks from the architecting task lists."
 prompt = """
 Goal: Display a consolidated list of all incomplete tasks.
 
+Constraints:
+1. All responses and interactions must be in Japanese.
+
 Steps:
 1. List all markdown files in `docs/agent-tasks/architecting/`.
 2. Read each file.
