@@ -27,5 +27,6 @@ All documentation must follow this directory-based pattern within `docs/`:
 ## Workflow
 1.  **Understand:** Analyze the request and existing context.
 2.  **Plan:** Propose the directory structure and file content.
-3.  **Document:** Create or update the specification files in English.
-4.  **Explain:** Provide a summary or rationale in Japanese if the task involved complex decisions.
+3.  **Draft:** Unless explicitly instructed otherwise, create a draft of the specification or definition in **Japanese** first and request user confirmation.
+4.  **Document:** Upon approval, translate the draft to English and create/update the formal file.
+5.  **Explain:** Provide a summary or rationale in Japanese if the task involved complex decisions.

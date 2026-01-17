@@ -27,6 +27,6 @@
 - [ ] 全モジュールの定義完了後、Overviewドキュメントとの整合性を確認する。\n## アーキテクチャ設計 (System Architecture)
 システム全体の共通ルールや非機能要件を定義する。
 
-- [ ] `docs/system_architecture/routing/SPECIFICATIONS.md` (ルーティング設計：URL、遷移、ガード)
+- [x] `docs/system_architecture/routing/SPECIFICATIONS.md` (ルーティング設計：URL、遷移、ガード)
 - [ ] `docs/system_architecture/error-handling/SPECIFICATIONS.md` (エラーハンドリング戦略：境界、通知)
 - [ ] `docs/system_architecture/testing/SPECIFICATIONS.md` (テスト戦略：範囲、ツール、カバレッジ)
