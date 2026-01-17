@@ -1,4 +1,4 @@
-# Analytics Module (Visualization Engine) Specifications
+# Analytics Module ([Visualization Engine](../../system-specific-words/Visualization_Engine/DEFINITIONS.md)) Specifications
 
 ## 1. Overview
 The Analytics Module is responsible for transforming domain data (e.g., weight, workout logs) into a format interpretable by visualization libraries (Recharts) and rendering it.
@@ -25,7 +25,7 @@ src/features/analytics/
 
 ## 3. Key Sub-Modules
 
-### 3.1 Transformers (Engine Core)
+### 3.1 [Transformers](../../system-specific-words/Transformer/DEFINITIONS.md) (Engine Core)
 A collection of pure functions that transform domain data into Recharts Props.
 Since this is the area where functional additions occur most frequently, extension rules and detailed specifications are defined in a separate document.
 *   **Detailed Specifications:** [Transformers Specifications](./transformers/SPECIFICATIONS.md)

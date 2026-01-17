@@ -27,7 +27,7 @@ The Data Visualization Engine is a specialized, pure-functional layer responsibl
 
 ---
 
-## 4. Implementation Pattern: Functional Transformer
+## 4. Implementation Pattern: Functional [Transformer](../../system-specific-words/Transformer/DEFINITIONS.md)
 
 The engine implements the **Functional Transformer** pattern. This pipeline approach uses a single generic interface to orchestrate specialized sub-functions.
 

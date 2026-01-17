@@ -31,5 +31,8 @@
 - [x] `docs/system_architecture/error-handling/SPECIFICATIONS.md` (エラーハンドリング戦略：境界、通知)
 - [ ] `docs/system_architecture/testing/SPECIFICATIONS.md` (テスト戦略：範囲、ツール、カバレッジ)
     - [ ] `docs/Inbox/testing_strategy_draft.md` (v1向けドラフトの一時保存)
-    - [ ] `docs/technology-research/persistence-layer-comparison.md` (技術解説：IndexedDB vs Google Spreadsheet)
-    - [ ] `docs/technology-research/testing-tools-comparison.md` (技術解説：TypeScriptテストツール比較)
+            - [x] `docs/technology-research/persistence-layer-comparison.md` (技術解説：IndexedDB vs Google Spreadsheet)
+            - [x] `docs/technology-research/dexie-js-overview.md` (技術解説：Dexie.jsとは・競合比較)
+            - [x] `docs/technology-research/vite-overview.md` (技術解説：Viteとは・Webpackとの違い)
+            - [ ] `docs/technology-research/testing-tools-comparison.md` (技術解説：TypeScriptテストツール比較)
+            - [ ] ユーザーによる技術ドキュメント確認とテスト戦略の議論・決定

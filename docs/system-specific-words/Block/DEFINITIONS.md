@@ -15,4 +15,4 @@ Each Block is reconstructed dynamically based on persisted metadata, which defin
 
 ## Related Terms
 - **Dashboard**: The container screen that manages the layout of Blocks.
-- **Visualization Engine**: The component responsible for rendering the content within a data-centric Block.
+- **[Visualization Engine](../Visualization_Engine/DEFINITIONS.md)**: The component responsible for rendering the content within a data-centric Block.
