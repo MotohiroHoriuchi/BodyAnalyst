@@ -29,10 +29,12 @@
 
 - [x] `docs/system_architecture/routing/SPECIFICATIONS.md` (ルーティング設計：URL、遷移、ガード)
 - [x] `docs/system_architecture/error-handling/SPECIFICATIONS.md` (エラーハンドリング戦略：境界、通知)
-- [ ] `docs/system_architecture/testing/SPECIFICATIONS.md` (テスト戦略：範囲、ツール、カバレッジ)
-    - [ ] `docs/Inbox/testing_strategy_draft.md` (v1向けドラフトの一時保存)
-            - [x] `docs/technology-research/persistence-layer-comparison.md` (技術解説：IndexedDB vs Google Spreadsheet)
+- [x] `docs/system_architecture/sync_logic/SPECIFICATIONS.md` (同期ロジック設計：トリガー、競合解決、再試行)
+- [x] `docs/system_architecture/testing/SPECIFICATIONS.md` (テスト戦略：範囲、 ツール、カバレッジ)
+    - [x] `docs/Inbox/testing_strategy_draft.md` (v1向けドラフトの一時保存と議論)
+    - [x] `docs/technology-research/persistence-layer-comparison.md` (技術解説 ：IndexedDB vs Google Spreadsheet)
             - [x] `docs/technology-research/dexie-js-overview.md` (技術解説：Dexie.jsとは・競合比較)
+            - [x] `docs/technology-research/pwa-tech-stack.md` (技術解説：PWA実現のための技術スタック)
             - [x] `docs/technology-research/vite-overview.md` (技術解説：Viteとは・Webpackとの違い)
             - [ ] `docs/technology-research/testing-tools-comparison.md` (技術解説：TypeScriptテストツール比較)
             - [ ] ユーザーによる技術ドキュメント確認とテスト戦略の議論・決定

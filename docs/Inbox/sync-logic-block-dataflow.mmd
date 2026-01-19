@@ -1,0 +1,62 @@
+graph TD
+    %% --- ユーザーインターフェース層 ---
+    subgraph UI_Layer [UI層]
+        Component[Reactコンポーネント]
+    end
+
+    %% --- 機能ロジック層 ---
+    subgraph Feature_Layer [機能モジュール]
+        useWorkout[useWorkout フック]
+        useMeal[useMeal フック]
+    end
+
+    %% --- データアクセス層 (ローカル) ---
+    subgraph Local_Data_Layer [ローカルデータアクセス]
+        LocalRepo[ローカルリポジトリ]
+        DexieDB[(Dexie.js / IndexedDB)]
+    end
+
+    %% --- 同期層 (コアロジック) ---
+    subgraph Sync_Layer [同期マネージャーモジュール]
+        SyncManager[同期マネージャー]
+        ConflictResolver[競合解決エージェント]
+        QueueManager[操作キュー管理]
+    end
+
+    %% --- インフラストラクチャ層 (リモート) ---
+    subgraph Remote_Infra_Layer [インフラ層]
+        SheetAdapter[Google Sheets アダプター]
+        RemoteAPI[Google Sheets API]
+    end
+
+    %% --- データフロー観点での接続 ---
+    
+    %% 入力からローカル永続化
+    Component -- "1. ユーザー入力データ" --> useWorkout
+    useWorkout -- "2. 正規化されたエンティティ" --> LocalRepo
+    LocalRepo -- "3. 未同期フラグ付きレコード" --> DexieDB
+    
+    %% 変更検知とデータ抽出
+    DexieDB -- "4. 変更イベント" --> SyncManager
+    SyncManager -- "5. 同期対象クエリ" --> DexieDB
+    DexieDB -- "6. ローカルレコード一式" --> SyncManager
+    
+    %% キューイングと順序制御
+    SyncManager -- "7. 未完了操作ログ" --> QueueManager
+    QueueManager -- "8. 実行待ち操作スタック" --> SyncManager
+    
+    %% リモート比較と競合解決
+    SyncManager -- "9. 最新状態リクエスト" --> SheetAdapter
+    SheetAdapter -- "10. 行データ取得リクエスト" --> RemoteAPI
+    RemoteAPI -- "11. リモート行データ" --> SheetAdapter
+    SheetAdapter -- "12. リモートエンティティ" --> SyncManager
+    
+    SyncManager -- "13. ローカル vs リモート" --> ConflictResolver
+    ConflictResolver -- "14. 解決済みマージデータ" --> SyncManager
+    
+    %% リモート更新と完了通知
+    SyncManager -- "15. 更新/挿入用行データ" --> SheetAdapter
+    SheetAdapter -- "16. HTTP POST/PUT" --> RemoteAPI
+    
+    RemoteAPI -- "17. 実行結果 (200 OK/Error)" --> SyncManager
+    SyncManager -- "18. 同期完了ステータス" --> DexieDB
