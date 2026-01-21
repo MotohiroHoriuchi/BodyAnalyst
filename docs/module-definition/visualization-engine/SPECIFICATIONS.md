@@ -2,7 +2,7 @@
 
 ## 1. Overview
 The Visualization Engine is the core module responsible for the flexible processing, calculation, and visualization of all data within the application.
-Extending beyond simple data transformation, it adopts a **Pipe & Filter Architecture** to enable user-defined calculations (e.g., weight ratios, moving averages) and complex data processing workflows.
+Extending beyond simple data transformation, it adopts a **Pipe & Filter Architecture** to enable user-defined calculations (e.g., weight ratios, moving averages), complex data processing workflows, and **advanced text analysis**.
 
 ## 2. Architecture (Pipe & Filter)
 
@@ -11,10 +11,10 @@ Data processing is modeled as a sequence (Pipeline) of independent "Filters".
 ```mermaid
 graph LR
     Source(Data Source) --> Filter1[Filter: Extraction]
-    Filter1 --> Filter2[Filter: Aggregation]
-    Filter2 --> Filter3[Filter: Calculation/Normalization]
+    Filter1 --> Filter2[Filter: Processing/Tokenization]
+    Filter2 --> Filter3[Filter: Aggregation/Calculation]
     Filter3 --> Filter4[Filter: Formatting]
-    Filter4 --> Sink(View / Recharts Props)
+    Filter4 --> Sink(View / Recharts / Network Graph)
 ```
 
 ### 2.1 Key Components
@@ -30,13 +30,17 @@ graph LR
     *   **Arithmetic:**
         *   `OperationFilter`: Arithmetic operations between fields (e.g., `bench_press_weight` / `body_weight`).
         *   `TrendFilter`: Calculation of moving averages or trend lines.
+    *   **Text Analysis:**
+        *   `TokenizerFilter`: Decomposes free text into tokens (words/tags).
     *   **Formatting:** Unit conversion, string generation for display.
 
 3.  **Pipeline Engine**
     *   A runner that instantiates the Source and a sequence of Filters based on a configuration (Config) and executes the data processing flow.
 
 4.  **Sink (Presenter)**
-    *   Converts the processed data into the final consumption format (e.g., Recharts Props).
+    *   Converts the processed data into the final consumption format.
+    *   **ChartSink:** For Recharts (Line, Bar, Area charts).
+    *   **NetworkGraphSink:** For Force Graph visualization (Nodes & Links).
 
 ## 3. Data Model
 
@@ -47,7 +51,9 @@ Data flowing through the pipeline uses a normalized dictionary structure to prev
 interface DataPoint {
   timestamp: number; // Unique key representing time
   attributes: {
-    [key: string]: number | string | null; // Dynamic fields (weight, volume, etc.)
+    // Dynamic fields
+    // string[] allows for handling tokenized text or tags
+    [key: string]: number | string | string[] | null;
   };
   metadata?: any; // Origin information, etc.
 }
@@ -80,18 +86,47 @@ Performs calculations along the time axis.
 *   **Moving Average:** Calculates the average over a specified window size.
 *   **Cumulative:** Calculates the cumulative value from the starting point.
 
-## 5. Configuration Persistence
+## 5. Text Analysis Capabilities (New)
+
+To bridge the gap between "qualitative notes" and "quantitative results," the engine supports text mining features.
+
+### 5.1 Tokenizer Filter
+Decomposes a text field into an array of strings (tokens).
+
+*   **Functionality:**
+    *   Splits text by delimiters (space, comma).
+    *   (Advanced) Supports morphological analysis or simple heuristic segmentation (e.g., hashtag extraction).
+*   **Config Example:**
+    ```json
+    {
+      "type": "tokenizer",
+      "sourceField": "workout_note",
+      "targetField": "note_tokens",
+      "method": "whitespace" // or "hashtag", "segmenter"
+    }
+    ```
+
+### 5.2 Network Graph Sink
+Aggregates the co-occurrence of tokens and other attributes to generate data for network visualization.
+
+*   **Input:** DataFrame containing token arrays (e.g., from `TokenizerFilter`) and other metrics (e.g., "Performance Rating").
+*   **Output:** `{ nodes: Node[], links: Link[] }`
+    *   **Node:** Represents a unique token or entity. Size can represent frequency.
+    *   **Link:** Represents co-occurrence in the same record (or same timeframe). Thickness represents correlation strength.
+
+## 6. Configuration Persistence
 
 Custom charts created by users are saved as **Pipeline Configurations** in JSON format.
 
 *   This ensures complete reproducibility of "what data" was used, "how it was processed," and "how it is displayed."
 *   Presets (recommended charts) are also provided in this JSON format.
 
-## 6. Implementation Plan
+## 7. Implementation Plan
 
 The existing `Transformer` in the `Analytics` module will be redefined and refactored as a type of `Filter` within this architecture.
 
 1.  **Core Interface Definition:** Define interfaces for `Source`, `Filter`, and `Pipeline`.
 2.  **Base Filters Implementation:** Migrate range filters and aggregation filters.
 3.  **Arithmetic Filters Implementation:** Implement new calculation logic.
-4.  **UI Integration:** Logic to generate Configs from the chart settings UI.
+4.  **Text Analysis Implementation:** Implement `TokenizerFilter` and `NetworkGraphSink`.
+5.  **UI Integration:** Logic to generate Configs from the chart settings UI.
