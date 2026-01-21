@@ -22,15 +22,15 @@
     - [x] `docs/module-definition/core/components/SPECIFICATIONS.md` (UIコンポーネント詳細 - 分割・移動)
     - [x] `docs/module-definition/core/utils/SPECIFICATIONS.md` (ユーティリティ詳細 - 分割・移動)
 - [x] `docs/module-definition/infrastructure/SPECIFICATIONS.md` (DB接続、リポジトリパターン、データ型変換)
-- [ ] docs/modeul-definition/visualize-engine/SPECIFICATIONS.md ([[BodyAnalyst/docs/system_architecture/visualization_engine/SPECIFICATIONS]]の詳細化)
-	- [ ] Pipe & Filterで構築する旨を明記
-	- [ ] パイプラインを流れるデータモデルを定義する
-	- [ ] フィルターでデータの演算を行う機能を定義する
-		- [ ] 具体例として、ベンチプレスの重量を体重で正規化する演算など、データ同士、またはデータと任意の数値で演算処理をパイプし、最終的にグラフPropとして出力する仕様を記載
-	- [ ] Engineは任意の数のフィルターをパイプしてグラフを作成できる機能をUI層に提供する
-	- [ ] 作成したフィルターを保存できる機能を定義する
-	- [ ] 上記機能仕様書を実装者の単位に分割し、仕様書として作成する
-		- [ ] 実装者は他実装者のインターフェースのみに依存する単位で分割できる
+- [x] `docs/module-definition/visualization-engine/SPECIFICATIONS.md` ([[BodyAnalyst/docs/system_architecture/visualization_engine/SPECIFICATIONS]]の詳細化)
+	- [x] Pipe & Filterで構築する旨を明記
+	- [x] パイプラインを流れるデータモデルを定義する
+	- [x] フィルターでデータの演算を行う機能を定義する
+		- [x] 具体例として、ベンチプレスの重量を体重で正規化する演算など、データ同士、またはデータと任意の数値で演算処理をパイプし、最終的にグラフPropとして出力する仕様を記載
+	- [x] Engineは任意の数のフィルターをパイプしてグラフを作成できる機能をUI層に提供する
+	- [x] 作成したフィルターを保存できる機能を定義する
+	- [x] 上記機能仕様書を実装者の単位に分割し、仕様書として作成する
+		- [x] 実装者は他実装者のインターフェースのみに依存する単位で分割できる
 
 ## 全体整合性確認
 - [ ] 全モジュールの定義完了後、Overviewドキュメントとの整合性を確認する。\n## アーキテクチャ設計 (System Architecture)
