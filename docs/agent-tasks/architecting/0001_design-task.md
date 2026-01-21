@@ -8,4 +8,5 @@
 - [x] デザイン仕様の全体俯瞰ドキュメント（例：`docs/design/overview/SPECIFICATIONS.md`）が必要か検討し、必要であれば作成する。
 - [x] 各仕様書間のリンク整合性を確認し、未作成ファイルへのリンク（もしあれば）を修正する。
 \n## 設定・管理機能 (Settings & Admin)
-- [ ] `docs/design/settings/SPECIFICATIONS.md` (設定画面UI仕様：プロフィール、目標設定、データ管理)
+- [x] `docs/design/settings/SPECIFICATIONS.md` (設定画面UI仕様：プロフィール、目標設定、データ管理)
+- [x] `docs/screen_definition/settings/SPECIFICATIONS.md` (設定画面のレイアウト、項目、操作フロー)
