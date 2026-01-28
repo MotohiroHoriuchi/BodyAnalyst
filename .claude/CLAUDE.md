@@ -13,8 +13,11 @@ The core value proposition is enabling users to visualize their training data in
 
 ### Workflow
 - **Git Worktree:** MUST be used for all development tasks to ensure clean context switching and isolation.
-- **Spec-Driven Development (SDD):** All features must be defined in `docs/SPECIFICATION.md` (or equivalent) before implementation.
-- **Test-Driven Development (TDD):** Tests must be written before the implementation code.
+- **Spec-Driven Development (SDD):** Implementation MUST strictly follow the documentation in `docs/`. The documentation is the source of truth, not the existing code.
+- **Documentation Requirement:** Upon completing a module or feature, you MUST create or update its specific specification document (e.g., `docs/module-definition/<module>/SPECIFICATIONS.md`) and request a review.
+- **Language:** All user-facing text and labels in the application MUST be in **Japanese**.
+- **Test-Driven Development (TDD):** Implementation MUST follow the Red-Green-Refactor cycle. Tests MUST be written before the implementation code.
+- **Classical Testing Style:** Use the "Classical" (Detroit) school of testing. Avoid mocking internal dependencies; use real implementation and objects whenever possible. Mocking should be reserved for external boundaries (e.g., Network API, Database, System Time) to ensure tests reflect real behavior and provide high confidence.
 
 ### Tech Stack (Official Version)
 - **Frontend:** React, TypeScript, Vite

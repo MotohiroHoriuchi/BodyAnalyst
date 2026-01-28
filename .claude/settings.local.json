@@ -15,7 +15,8 @@
       "Bash(cat:*)",
       "Bash(node:*)",
       "Bash(git reset:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git worktree:*)"
     ],
     "deny": [],
     "ask": []
