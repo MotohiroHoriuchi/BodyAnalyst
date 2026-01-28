@@ -1,12 +1,21 @@
+import { useState } from 'react';
 import { signIn } from '../db';
 
 export function LoginPage() {
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSignIn = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       await signIn();
     } catch (error) {
       console.error('Sign in failed:', error);
-      alert('Failed to sign in. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(`Failed to sign in: ${errorMessage}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -18,10 +27,18 @@ export function LoginPage() {
           <p className="text-gray-600">Track your fitness journey with data-driven insights</p>
         </div>
 
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-800 text-sm">{error}</p>
+            <p className="text-red-600 text-xs mt-2">Check browser console (F12) for details</p>
+          </div>
+        )}
+
         <div className="mt-8">
           <button
             onClick={handleSignIn}
-            className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isLoading}
+            className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -41,7 +58,7 @@ export function LoginPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Sign in with Google
+            {isLoading ? 'Signing in...' : 'Sign in with Google'}
           </button>
         </div>
 

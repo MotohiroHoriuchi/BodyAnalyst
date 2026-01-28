@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Utensils, Dumbbell, TrendingUp, Settings } from 'lucide-react';
+import { Home, Utensils, Dumbbell, Weight, TrendingUp, Settings } from 'lucide-react';
 
 export function MainLayout() {
   return (
@@ -46,6 +46,18 @@ export function MainLayout() {
           >
             <Dumbbell size={24} />
             <span className="text-xs mt-1">Workout</span>
+          </NavLink>
+
+          <NavLink
+            to="/weight"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center w-full h-full ${
+                isActive ? 'text-blue-600' : 'text-gray-600'
+              }`
+            }
+          >
+            <Weight size={24} />
+            <span className="text-xs mt-1">Weight</span>
           </NavLink>
 
           <NavLink

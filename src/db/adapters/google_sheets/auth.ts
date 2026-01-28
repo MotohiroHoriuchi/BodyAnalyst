@@ -2,7 +2,7 @@
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
-const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
 
 let tokenClient: google.accounts.oauth2.TokenClient | null = null;
 let gapiInited = false;
@@ -34,32 +34,65 @@ function notifyAuthStateChange(state: AuthState) {
  * Initialize Google API client
  */
 export async function initializeGoogleAPI(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    // Load GAPI
-    gapi.load('client', async () => {
-      try {
-        await gapi.client.init({
-          apiKey: API_KEY,
-          discoveryDocs: [DISCOVERY_DOC],
-        });
-        gapiInited = true;
-        maybeEnableButtons();
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
+  // Check if environment variables are set
+  if (!CLIENT_ID || !API_KEY) {
+    console.warn('Google API credentials not configured. Please set VITE_GOOGLE_CLIENT_ID and VITE_GOOGLE_API_KEY in .env file.');
+    throw new Error('Google API credentials not configured');
+  }
 
-    // Load GIS (Google Identity Services)
-    if (typeof google !== 'undefined' && google.accounts) {
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPES,
-        callback: '', // defined at request time
-      });
-      gisInited = true;
-      maybeEnableButtons();
-    }
+  return new Promise((resolve, reject) => {
+    // Wait for gapi to be available
+    const waitForGapi = setInterval(() => {
+      if (typeof gapi !== 'undefined') {
+        clearInterval(waitForGapi);
+
+        // Load GAPI
+        gapi.load('client', async () => {
+          try {
+            await gapi.client.init({
+              apiKey: API_KEY,
+              discoveryDocs: [DISCOVERY_DOC],
+            });
+            gapiInited = true;
+            maybeEnableButtons();
+
+            // Also wait for Google Identity Services
+            const waitForGIS = setInterval(() => {
+              if (typeof google !== 'undefined' && google.accounts) {
+                clearInterval(waitForGIS);
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                  client_id: CLIENT_ID,
+                  scope: SCOPES,
+                  callback: '', // defined at request time
+                });
+                gisInited = true;
+                maybeEnableButtons();
+                resolve();
+              }
+            }, 100);
+
+            // Timeout after 10 seconds
+            setTimeout(() => {
+              clearInterval(waitForGIS);
+              if (!gisInited) {
+                reject(new Error('Google Identity Services failed to load'));
+              }
+            }, 10000);
+
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+    }, 100);
+
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      clearInterval(waitForGapi);
+      if (!gapiInited) {
+        reject(new Error('Google API failed to load'));
+      }
+    }, 10000);
   });
 }
 
@@ -82,23 +115,30 @@ export async function signIn(): Promise<void> {
 
     tokenClient.callback = async (response: any) => {
       if (response.error !== undefined) {
-        reject(response);
+        console.error('OAuth error:', response);
+        reject(new Error(`OAuth error: ${response.error} - ${response.error_description || ''}`));
         return;
       }
 
-      // Get user info
-      const token = gapi.client.getToken();
-      if (token) {
+      // Set the access token to gapi
+      if (response.access_token) {
+        gapi.client.setToken({
+          access_token: response.access_token,
+        });
+
         try {
-          const userInfo = await fetchUserInfo(token.access_token);
+          const userInfo = await fetchUserInfo(response.access_token);
           notifyAuthStateChange({
             isSignedIn: true,
             user: userInfo,
           });
           resolve();
         } catch (error) {
+          console.error('Failed to fetch user info:', error);
           reject(error);
         }
+      } else {
+        reject(new Error('No access token received'));
       }
     };
 

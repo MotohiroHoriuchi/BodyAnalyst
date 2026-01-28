@@ -2,8 +2,14 @@ import { IStorageAdapter } from '../../interfaces/IStorageAdapter';
 import { initializeGoogleAPI, isSignedIn, getAccessToken } from './auth';
 import { rowsToObjects, objectToRow } from './mapper';
 
-// Spreadsheet ID - should be configured per user
-const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SPREADSHEET_ID;
+// Get spreadsheet ID from localStorage or env
+function getSpreadsheetId(): string {
+  const savedId = localStorage.getItem('BODYANALYST_SPREADSHEET_ID');
+  if (savedId && savedId !== 'your_spreadsheet_id_here') {
+    return savedId;
+  }
+  return import.meta.env.VITE_GOOGLE_SPREADSHEET_ID || '';
+}
 
 export class GoogleSheetsAdapter implements IStorageAdapter {
   private ready = false;
@@ -24,9 +30,14 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
       throw new Error('Adapter not ready. Please sign in first.');
     }
 
+    const spreadsheetId = getSpreadsheetId();
+    if (!spreadsheetId) {
+      throw new Error('Spreadsheet ID not configured');
+    }
+
     try {
       const response = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
+        spreadsheetId,
         range: `${collection}!A:Z`, // Read all columns
       });
 
@@ -58,10 +69,15 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
       throw new Error('Adapter not ready. Please sign in first.');
     }
 
+    const spreadsheetId = getSpreadsheetId();
+    if (!spreadsheetId) {
+      throw new Error('Spreadsheet ID not configured');
+    }
+
     try {
       // First, get the headers to know the column order
       const headerResponse = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
+        spreadsheetId,
         range: `${collection}!1:1`,
       });
 
@@ -79,7 +95,7 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
 
       // Append the row
       await gapi.client.sheets.spreadsheets.values.append({
-        spreadsheetId: SPREADSHEET_ID,
+        spreadsheetId,
         range: `${collection}!A:Z`,
         valueInputOption: 'USER_ENTERED',
         resource: {
@@ -99,6 +115,11 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
       throw new Error('Adapter not ready. Please sign in first.');
     }
 
+    const spreadsheetId = getSpreadsheetId();
+    if (!spreadsheetId) {
+      throw new Error('Spreadsheet ID not configured');
+    }
+
     try {
       // Find the row with the given ID
       const allData = await this.read(collection);
@@ -110,7 +131,7 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
 
       // Get headers
       const headerResponse = await gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
+        spreadsheetId,
         range: `${collection}!1:1`,
       });
 
@@ -121,7 +142,7 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
       const row = objectToRow({ ...allData[rowIndex], ...data }, headers);
 
       await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
+        spreadsheetId,
         range: `${collection}!A${actualRowNumber}:Z${actualRowNumber}`,
         valueInputOption: 'USER_ENTERED',
         resource: {
@@ -139,6 +160,11 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
       throw new Error('Adapter not ready. Please sign in first.');
     }
 
+    const spreadsheetId = getSpreadsheetId();
+    if (!spreadsheetId) {
+      throw new Error('Spreadsheet ID not configured');
+    }
+
     try {
       // Find the row with the given ID
       const allData = await this.read(collection);
@@ -152,7 +178,7 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
       const actualRowNumber = rowIndex + 1;
 
       await gapi.client.sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
+        spreadsheetId,
         resource: {
           requests: [
             {
@@ -175,8 +201,9 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
   }
 
   private async getSheetId(sheetName: string): Promise<number> {
+    const spreadsheetId = getSpreadsheetId();
     const response = await gapi.client.sheets.spreadsheets.get({
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId,
     });
 
     const sheet = response.result.sheets?.find(s => s.properties?.title === sheetName);
