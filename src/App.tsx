@@ -1,42 +1,71 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { BottomNav } from './components/common';
-import { Home, Meals, Workout, Analytics, Settings } from './pages';
-import { seedDatabase } from './db/seed';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { initializeDatabase, subscribeToAuthState, type AuthState } from './db';
+
+// Pages (to be implemented)
+import { HomePage } from './pages/HomePage';
+import { MealPage } from './pages/MealPage';
+import { WorkoutPage } from './pages/WorkoutPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { LoginPage } from './pages/LoginPage';
+
+// Layout
+import { MainLayout } from './components/layout/MainLayout';
 
 function App() {
+  const [authState, setAuthState] = useState<AuthState>({
+    isSignedIn: false,
+    user: null,
+  });
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    // Initialize database and auth
     const init = async () => {
-      await seedDatabase();
-      setIsInitialized(true);
+      try {
+        await initializeDatabase();
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+      }
     };
+
     init();
+
+    // Subscribe to auth state changes
+    const unsubscribe = subscribeToAuthState(setAuthState);
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-neutral-600 font-medium">読み込み中...</p>
-        </div>
+        <div className="text-lg">Loading...</div>
       </div>
     );
   }
 
+  if (!authState.isSignedIn) {
+    return <LoginPage />;
+  }
+
   return (
-    <div className="min-h-screen">
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/meals" element={<Meals />} />
-        <Route path="/workout" element={<Workout />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="meals" element={<MealPage />} />
+          <Route path="workout" element={<WorkoutPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
       </Routes>
-      <BottomNav />
-    </div>
+    </BrowserRouter>
   );
 }
 
