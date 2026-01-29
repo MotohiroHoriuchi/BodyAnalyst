@@ -1,21 +1,20 @@
-import { useWorkout } from '../features/workout';
+import { useWorkout, WorkoutInput, WorkoutHistory } from '../features/workout';
 
 export function WorkoutPage() {
-  const { sessions, loading } = useWorkout();
+  const { sessions, loading, saveSession, refresh } = useWorkout();
+
+  const handleSave = async (session: any) => {
+    await saveSession(session);
+    refresh();
+  };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">Workout</h1>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-900">トレーニング記録</h1>
 
-      {loading && <p>Loading...</p>}
+      <WorkoutInput onSave={handleSave} />
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">
-          {sessions.length === 0
-            ? 'No workout sessions yet. Start logging your training!'
-            : `You have ${sessions.length} workout sessions.`}
-        </p>
-      </div>
+      <WorkoutHistory sessions={sessions} loading={loading} />
     </div>
   );
 }

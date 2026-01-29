@@ -1,21 +1,20 @@
-import { useMeal } from '../features/meal';
+import { useMeal, MealInput, MealHistory } from '../features/meal';
 
 export function MealPage() {
-  const { records, loading } = useMeal();
+  const { records, loading, saveMeal, refresh } = useMeal();
+
+  const handleSave = async (record: any) => {
+    await saveMeal(record);
+    refresh();
+  };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">Meals</h1>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-900">食事記録</h1>
 
-      {loading && <p>Loading...</p>}
+      <MealInput onSave={handleSave} />
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">
-          {records.length === 0
-            ? 'No meal records yet. Start tracking your nutrition!'
-            : `You have ${records.length} meal records.`}
-        </p>
-      </div>
+      <MealHistory records={records} loading={loading} />
     </div>
   );
 }
