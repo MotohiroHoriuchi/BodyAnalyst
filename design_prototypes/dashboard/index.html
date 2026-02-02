@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BodyAnalyst Design Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .chart-placeholder {
+            background: linear-gradient(45deg, #f3f4f6 25%, #e5e7eb 25%, #e5e7eb 50%, #f3f4f6 50%, #f3f4f6 75%, #e5e7eb 75%, #e5e7eb 100%);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-white border-b sticky top-0 z-10">
+        <div class="max-w-md mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-800 tracking-tight">BodyAnalyst</h1>
+            <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 py-6 space-y-6">
+        
+        <!-- Date Selector -->
+        <div class="flex items-center justify-between bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
+            <button class="p-2 hover:bg-gray-50 rounded-xl transition-colors text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <div class="flex flex-col items-center">
+                <span class="text-sm font-bold text-gray-800">2026年1月28日</span>
+                <span class="text-[10px] text-gray-400 font-medium">水曜日 (今日)</span>
+            </div>
+            <button class="p-2 hover:bg-gray-50 rounded-xl transition-colors text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Today's Summary Card -->
+        <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 overflow-hidden relative">
+            <div class="absolute top-0 right-0 p-4">
+                <div class="w-16 h-16 opacity-5">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11,9H13V7H11M11,17H13V11H11M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/></svg>
+                </div>
+            </div>
+            <h2 class="text-xs font-bold text-gray-400 mb-6 tracking-widest uppercase flex items-center">
+                <span class="w-1 h-3 bg-indigo-500 rounded-full mr-2"></span>
+                今日のサマリー
+            </h2>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="flex flex-col">
+                    <span class="text-xs text-gray-400 font-medium mb-1">摂取カロリー</span>
+                    <div class="flex items-baseline space-x-1">
+                        <span class="text-3xl font-black text-gray-900 tracking-tight">1,850</span>
+                        <span class="text-xs font-bold text-gray-400">kcal</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end text-right">
+                    <span class="text-xs text-gray-400 font-medium mb-1">残り</span>
+                    <div class="flex items-baseline space-x-1">
+                        <span class="text-3xl font-black text-green-500 tracking-tight">550</span>
+                        <span class="text-xs font-bold text-gray-400">kcal</span>
+                    </div>
+                </div>
+            </div>
+            <!-- PFC Progress Bars -->
+            <div class="space-y-4">
+                <div class="bg-gray-50 rounded-2xl p-3">
+                    <div class="flex justify-between text-[11px] mb-2 font-bold uppercase tracking-wider">
+                        <span class="text-orange-600">Protein</span>
+                        <span class="text-gray-400">120g / 150g</span>
+                    </div>
+                    <div class="w-full bg-white rounded-full h-1.5 p-[1px] border border-gray-100">
+                        <div class="bg-gradient-to-r from-orange-400 to-orange-500 h-full rounded-full transition-all duration-500" style="width: 80%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-2xl p-3">
+                    <div class="flex justify-between text-[11px] mb-2 font-bold uppercase tracking-wider">
+                        <span class="text-yellow-600">Fat</span>
+                        <span class="text-gray-400">45g / 60g</span>
+                    </div>
+                    <div class="w-full bg-white rounded-full h-1.5 p-[1px] border border-gray-100">
+                        <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 h-full rounded-full transition-all duration-500" style="width: 75%"></div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-2xl p-3">
+                    <div class="flex justify-between text-[11px] mb-2 font-bold uppercase tracking-wider">
+                        <span class="text-blue-600">Carbs</span>
+                        <span class="text-gray-400">220g / 300g</span>
+                    </div>
+                    <div class="w-full bg-white rounded-full h-1.5 p-[1px] border border-gray-100">
+                        <div class="bg-gradient-to-r from-blue-400 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 73%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weight Trend Card -->
+        <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xs font-bold text-gray-400 tracking-widest uppercase flex items-center">
+                    <span class="w-1 h-3 bg-green-500 rounded-full mr-2"></span>
+                    体重推移
+                </h2>
+                <div class="flex items-baseline space-x-1">
+                    <span class="text-xl font-black text-gray-900">72.4</span>
+                    <span class="text-xs font-bold text-gray-400">kg</span>
+                    <span class="ml-2 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">-0.5kg</span>
+                </div>
+            </div>
+            <div class="w-full h-32 chart-placeholder rounded-2xl flex items-center justify-center border border-dashed border-gray-200 overflow-hidden">
+                <svg class="w-full h-full text-gray-200" preserveAspectRatio="none" viewBox="0 0 100 40">
+                    <path d="M0,35 Q20,30 40,32 T80,15 T100,5" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- Recent Activity / Training -->
+        <section class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+            <h2 class="text-xs font-bold text-gray-400 mb-6 tracking-widest uppercase flex items-center">
+                <span class="w-1 h-3 bg-indigo-500 rounded-full mr-2"></span>
+                最近のトレーニング
+            </h2>
+            <div class="space-y-4">
+                <div class="group flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl hover:bg-indigo-50 transition-colors cursor-pointer border border-transparent hover:border-indigo-100">
+                    <div class="bg-white p-3 rounded-xl shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-gray-800">胸の日 (Chest Day)</h3>
+                        <p class="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-wider">2026.01.27 • 45 MINS • 2,400kg Vol</p>
+                    </div>
+                    <div class="text-gray-300 group-hover:text-indigo-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button class="flex items-center justify-center space-x-2 py-4 bg-gray-900 text-white rounded-2xl font-bold text-xs shadow-lg shadow-gray-200 active:scale-95 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>トレ記録</span>
+                </button>
+                <button class="flex items-center justify-center space-x-2 py-4 bg-white text-gray-900 border border-gray-200 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>食事記録</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 px-6 pt-3 pb-6 safe-area-inset-bottom">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <a href="#" class="flex flex-col items-center space-y-1 group">
+                <div class="p-1 rounded-lg text-indigo-600 bg-indigo-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-tighter text-indigo-600">Home</span>
+            </a>
+            <a href="#" class="flex flex-col items-center space-y-1 group text-gray-300">
+                <div class="p-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-tighter">Analysis</span>
+            </a>
+            <a href="#" class="flex flex-col items-center space-y-1 group text-gray-300">
+                <div class="p-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-tighter">History</span>
+            </a>
+            <a href="#" class="flex flex-col items-center space-y-1 group text-gray-300">
+                <div class="p-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-tighter">User</span>
+            </a>
+        </div>
+    </nav>
+
+</body>
+</html>

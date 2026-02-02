@@ -19,8 +19,14 @@ A **Dashboard Block** is a modular, independent functional unit. Users can insta
 - **Link Navigation:** Blocks configured as simple links (Action Blocks) may navigate directly upon activation, bypassing the menu.
 
 ### Sizing & Grid Logic
-- **Arbitrary Resizing:** Blocks allow free resizing to any dimension within the grid system (e.g., 1x1, 2x1, 4x3).
-- **No Constraints:** There are no logic-enforced minimum or maximum size limits per block type; the block logic must handle any provided dimension.
+- **Grid System:** The dashboard uses a flexible grid. The base unit is defined by the column count.
+    - **Mobile (Standard):** 2 Columns.
+- **Unit Dimensions:**
+    - **1x1 (Square):** Occupies 1 column width (approx. 50% screen width - gutter). Aspect ratio is 1:1.
+    - **2x1 (Wide):** Occupies 2 columns width (100% screen width). Height equals 1 row unit.
+    - **2x2 (Large Square):** Occupies 2 columns width and 2 rows height.
+- **Arbitrary Resizing:** While blocks snap to these grid units (1x1, 2x1, 2x2, etc.), the internal content must adapt responsively to any provided pixel dimension.
+- **No Constraints:** There are no logic-enforced minimum or maximum size limits per block type; the block logic must handle any provided dimension gracefully (e.g., hiding labels if too small).
 
 ## 4. Configuration Options
 Through the context menu, users can modify:

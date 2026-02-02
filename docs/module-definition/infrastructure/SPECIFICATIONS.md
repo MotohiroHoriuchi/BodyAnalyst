@@ -41,6 +41,24 @@ Defines an interface and implementation to abstract the data source.
     *   Implements `IStorageAdapter` and internally calls Google Sheets API v4.
     *   Manages authentication tokens internally, ensuring they do not leak outside the interface.
 
+### 3.3 Authentication & Token Management (Google Sheets)
+To improve user experience by preventing repeated login prompts, the authentication token is persisted locally.
+
+*   **Storage Location:** `LocalStorage`.
+*   **Data Structure:**
+    ```json
+    {
+      "accessToken": "ya29.a0...",
+      "expiresAt": 1700000000000 // Timestamp (ms)
+    }
+    ```
+*   **Lifecycle:**
+    1.  **Login:** Upon successful OAuth consent, store the received `access_token` and calculate `expires_at` (Current Time + `expires_in`).
+    2.  **App Init:** Check LocalStorage for a valid token.
+        *   **Valid:** Restore session immediately without user interaction.
+        *   **Expired/Missing:** Clear storage and prompt user to log in (or show "Guest/Logged Out" state).
+    3.  **Logout:** Explicitly remove the token from LocalStorage.
+
 ### 3.2 Repositories & Caching
 Performs read/write operations on domain objects using the Adapter and caches data for performance.
 

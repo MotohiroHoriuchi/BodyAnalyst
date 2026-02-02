@@ -16,7 +16,9 @@
       "Bash(node:*)",
       "Bash(git reset:*)",
       "Bash(npm run build:*)",
-      "Bash(git worktree:*)"
+      "Bash(git worktree:*)",
+      "Bash(grep:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []
