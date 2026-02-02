@@ -1,1 +1,0 @@
-export { WeightInput } from './WeightInput';
