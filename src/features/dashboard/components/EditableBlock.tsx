@@ -27,9 +27,19 @@ export function EditableBlock({
   const [showResizeMenu, setShowResizeMenu] = useState(false);
 
   const sizeClasses = {
-    '1x1': 'col-span-1',
+    '1x1': 'col-span-1 aspect-square',
     '2x1': 'col-span-2',
-    '2x2': 'col-span-2 row-span-2',
+    '2x2': 'col-span-2',
+  };
+
+  // Height classes to ensure consistent row heights
+  // 1x1 is square (aspect-ratio handles height)
+  // 2x1 should match 1x1's height (one row unit)
+  // 2x2 should be double the height (two row units)
+  const heightClasses = {
+    '1x1': '', // aspect-square handles it
+    '2x1': 'h-[var(--row-height)]',
+    '2x2': 'h-[calc(var(--row-height)*2+0.75rem)]', // 2 rows + 1 gap
   };
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -55,6 +65,7 @@ export function EditableBlock({
       className={`
         relative transition-all duration-200
         ${sizeClasses[size]}
+        ${heightClasses[size]}
         ${editMode ? 'cursor-move' : ''}
         ${isDragging ? 'opacity-50 scale-95' : ''}
         ${editMode ? 'animate-wiggle' : ''}

@@ -19,15 +19,8 @@ export function ChartBlock({
   onRetry,
   children,
 }: ChartBlockProps) {
-  const sizeClasses = {
-    '1x1': 'col-span-1 aspect-square',
-    '2x1': 'col-span-2 aspect-[2/1]',
-    '2x2': 'col-span-2 aspect-square',
-  };
-
   return (
-    <div
-      className={`relative bg-white dark:bg-[#1C1C1E] rounded-xl shadow-lg p-3 ${sizeClasses[size]}`}
+    <div className="relative bg-white dark:bg-[#1C1C1E] rounded-xl shadow-lg p-3 w-full h-full flex flex-col"
     >
       {/* Title overlay */}
       <div className="absolute top-2 left-3 z-10">
@@ -37,7 +30,7 @@ export function ChartBlock({
       </div>
 
       {/* Content area */}
-      <div className="w-full h-full pt-6">
+      <div className="flex-1 w-full pt-6 min-h-0">
         {loading && <BlockSkeleton />}
         {error && <BlockError message={error} onRetry={onRetry} />}
         {isEmpty && !loading && !error && <EmptyBlock />}

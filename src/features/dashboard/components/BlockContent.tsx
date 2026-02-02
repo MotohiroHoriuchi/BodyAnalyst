@@ -49,7 +49,7 @@ function WeightTrendBlock({
       isEmpty={weightChart.isEmpty}
     >
       {weightChart.chartData && (
-        <div className="h-full">
+        <div className="w-full h-full">
           <WeightTrendChart data={weightChart.chartData} blockSize={size} height="100%" />
         </div>
       )}
@@ -75,7 +75,7 @@ function VolumeTrendBlock({
       isEmpty={volumeChart.isEmpty}
     >
       {volumeChart.chartData && (
-        <div className="h-full">
+        <div className="w-full h-full">
           <VolumeTrendChart data={volumeChart.chartData} blockSize={size} height="100%" />
         </div>
       )}
@@ -101,7 +101,7 @@ function CalorieTrendBlock({
       isEmpty={calorieChart.isEmpty}
     >
       {calorieChart.chartData && (
-        <div className="h-full">
+        <div className="w-full h-full">
           <BaseChart data={calorieChart.chartData} blockSize={size} height="100%" />
         </div>
       )}
@@ -127,7 +127,7 @@ function PFCTrendBlock({
       isEmpty={pfcChart.isEmpty}
     >
       {pfcChart.chartData && (
-        <div className="h-full">
+        <div className="w-full h-full">
           <BaseChart data={pfcChart.chartData} blockSize={size} height="100%" />
         </div>
       )}
@@ -153,7 +153,7 @@ function PFCBalanceBlock({
       isEmpty={pfcChart.isEmpty}
     >
       {pfcChart.chartData && (
-        <div className="h-full">
+        <div className="w-full h-full">
           <BaseChart data={pfcChart.chartData} blockSize={size} height="100%" />
         </div>
       )}

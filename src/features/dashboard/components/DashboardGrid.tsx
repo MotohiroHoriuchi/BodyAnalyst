@@ -78,7 +78,14 @@ export function DashboardGrid() {
 
       {/* Grid */}
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div
+          className="grid grid-cols-2 gap-3 auto-rows-min"
+          style={
+            {
+              '--row-height': 'calc((100vw - 2rem - 0.75rem) / 2)', // (viewport - padding - gap) / 2 columns
+            } as React.CSSProperties
+          }
+        >
           {visibleBlocks.map((block) => (
             <div
               key={block.id}
