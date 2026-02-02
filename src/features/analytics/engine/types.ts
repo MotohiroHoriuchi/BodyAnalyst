@@ -26,6 +26,7 @@ export interface ChartDataPoint {
 }
 
 export interface RechartsProps {
+  type?: ChartType;
   data: ChartDataPoint[];
   xAxis: {
     dataKey: string;

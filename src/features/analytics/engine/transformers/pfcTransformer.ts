@@ -1,4 +1,4 @@
-import { TransformFn, VisConfig, RechartsProps } from '../types';
+import { TransformFn } from '../types';
 import { MealRecord } from '../../../../types/meal';
 import { filterByDateRange } from '../core/filter';
 import { aggregateByTime, sum } from '../core/aggregator';

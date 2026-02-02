@@ -1,4 +1,4 @@
-import { TransformFn, VisConfig, RechartsProps } from '../types';
+import { TransformFn } from '../types';
 import { WeightRecord } from '../../../../types/weight';
 import { filterByDateRange } from '../core/filter';
 import { aggregateByTime, average } from '../core/aggregator';

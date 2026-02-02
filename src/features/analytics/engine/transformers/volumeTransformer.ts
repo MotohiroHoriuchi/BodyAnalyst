@@ -1,4 +1,4 @@
-import { TransformFn, VisConfig, RechartsProps } from '../types';
+import { TransformFn } from '../types';
 import { WorkoutSession } from '../../../../types/workout';
 import { filterByDateRange } from '../core/filter';
 import { aggregateByTime, sum } from '../core/aggregator';
