@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { initializeDatabase, subscribeToAuthState, type AuthState } from './db';
+
+// Proto pages (dev-only)
+const NetworkGraphDemo = import.meta.env.DEV
+  ? lazy(() => import('../proto/visualization-engine/src/components/NetworkGraph/NetworkGraphDemo').then(m => ({ default: m.NetworkGraphDemo })))
+  : null;
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -16,6 +21,19 @@ import { SetupPage } from './pages/SetupPage';
 import { MainLayout } from './components/layout/MainLayout';
 
 function App() {
+  // Dev-only: render proto pages without auth
+  if (import.meta.env.DEV && NetworkGraphDemo && window.location.pathname === '/proto/network-graph') {
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <NetworkGraphDemo />
+      </Suspense>
+    );
+  }
+
+  return <AuthenticatedApp />;
+}
+
+function AuthenticatedApp() {
   const [authState, setAuthState] = useState<AuthState>({
     isSignedIn: false,
     user: null,

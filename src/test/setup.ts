@@ -35,7 +35,7 @@ beforeAll(() => {
 afterEach(() => {
   cleanup();
   // Clear localStorage after each test
-  if (typeof window !== 'undefined' && window.localStorage) {
+  if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.clear === 'function') {
     window.localStorage.clear();
   }
 });
