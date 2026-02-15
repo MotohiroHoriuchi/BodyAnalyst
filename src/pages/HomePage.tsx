@@ -1,5 +1,5 @@
-import { DashboardGrid } from '../features/dashboard/components/DashboardGrid';
+import { Navigate } from 'react-router-dom';
 
 export function HomePage() {
-  return <DashboardGrid />;
+  return <Navigate to="/analytics" replace />;
 }

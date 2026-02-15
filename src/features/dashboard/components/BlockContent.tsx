@@ -1,11 +1,11 @@
-import { ChartBlock } from '../../analytics/components/ui/ChartBlock';
-import { BaseChart } from '../../analytics/components/charts/BaseChart';
-import { WeightTrendChart } from '../../analytics/components/charts/WeightTrendChart';
-import { VolumeTrendChart } from '../../analytics/components/charts/VolumeTrendChart';
-import { useWeightChart } from '../../analytics/hooks/useWeightChart';
-import { useVolumeChart } from '../../analytics/hooks/useVolumeChart';
-import { usePFCChart } from '../../analytics/hooks/usePFCChart';
-import { useCalorieChart } from '../../analytics/hooks/useCalorieChart';
+import { ChartBlock } from './ui/ChartBlock';
+import { BaseChart } from './charts/BaseChart';
+import { WeightTrendChart } from './charts/WeightTrendChart';
+import { VolumeTrendChart } from './charts/VolumeTrendChart';
+import { useWeightChart } from '../hooks/useWeightChart';
+import { useVolumeChart } from '../hooks/useVolumeChart';
+import { usePFCChart } from '../hooks/usePFCChart';
+import { useCalorieChart } from '../hooks/useCalorieChart';
 import type { BlockType, BlockSize } from '../types';
 
 interface BlockContentProps {

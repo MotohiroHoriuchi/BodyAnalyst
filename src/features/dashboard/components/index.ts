@@ -11,5 +11,3 @@ export { WeightTrendChart } from './charts/WeightTrendChart';
 export { VolumeTrendChart } from './charts/VolumeTrendChart';
 export { CustomTooltip } from './charts/CustomTooltip';
 
-// Layout
-export { DashboardGrid } from './DashboardGrid';
