@@ -1,25 +1,95 @@
-import { useState } from 'react';
-import { WorkoutSession } from '../../../types/workout';
+import { useState, useEffect } from 'react';
+import { WorkoutSession, ExerciseMaster } from '../../../types/workout';
+import { useExercise } from '../hooks/useExercise';
+import { calculateVolume } from '../utils/oneRmCalculator';
+import { ExerciseSelector } from './ExerciseSelector';
+import { NewExerciseForm } from './NewExerciseForm';
+import { SetTable, type SetData } from './SetTable';
 
 interface WorkoutInputProps {
   onSave: (session: Omit<WorkoutSession, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
 }
 
+const DEFAULT_SET_COUNT = 3;
+
+function createEmptySet(): SetData {
+  return { weight: '', reps: '', rpe: '' };
+}
+
 export function WorkoutInput({ onSave }: WorkoutInputProps) {
+  const { exercises, saveExercise } = useExercise();
+
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [exerciseName, setExerciseName] = useState('');
-  const [weight, setWeight] = useState('');
-  const [reps, setReps] = useState('');
-  const [sets, setSets] = useState('3');
+  const [selectedExerciseId, setSelectedExerciseId] = useState('');
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseMaster | null>(null);
+  const [showNewExerciseForm, setShowNewExerciseForm] = useState(false);
+  const [sets, setSets] = useState<SetData[]>(
+    Array.from({ length: DEFAULT_SET_COUNT }, createEmptySet)
+  );
+  const [showRpe, setShowRpe] = useState(false);
   const [memo, setMemo] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingExercise, setIsSavingExercise] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleExerciseChange = (id: string, exercise: ExerciseMaster | null) => {
+    setSelectedExerciseId(id);
+    setSelectedExercise(exercise);
+  };
+
+  const handleNewExerciseSave = async (exercise: ExerciseMaster) => {
+    setIsSavingExercise(true);
+    try {
+      await saveExercise(exercise);
+      setShowNewExerciseForm(false);
+      setAutoSelectName(exercise.name);
+    } catch {
+      // Error is handled by useExercise
+    } finally {
+      setIsSavingExercise(false);
+    }
+  };
+
+  // Auto-select newly created exercise
+  const [autoSelectName, setAutoSelectName] = useState<string | null>(null);
+  useEffect(() => {
+    if (autoSelectName && exercises.length > 0) {
+      const found = exercises.find((e) => e.name === autoSelectName);
+      if (found) {
+        setSelectedExerciseId(String(found.id));
+        setSelectedExercise(found);
+        setAutoSelectName(null);
+      }
+    }
+  }, [autoSelectName, exercises]);
+
+  const handleSetChange = (index: number, field: keyof SetData, value: string) => {
+    setSets((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
+  };
+
+  const handleAddSet = () => {
+    setSets((prev) => {
+      const last = prev[prev.length - 1];
+      // Copy weight/reps from last set for convenience
+      return [...prev, { weight: last.weight, reps: last.reps, rpe: '' }];
+    });
+  };
+
+  const handleRemoveSet = (index: number) => {
+    setSets((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!exerciseName || !weight || !reps) {
-      setError('種目名、重量、回数を入力してください');
+    if (!selectedExercise) {
+      setError('種目を選択してください');
+      return;
+    }
+
+    const filledSets = sets.filter((s) => s.weight && s.reps);
+    if (filledSets.length === 0) {
+      setError('少なくとも1セットの重量と回数を入力してください');
       return;
     }
 
@@ -27,27 +97,24 @@ export function WorkoutInput({ onSave }: WorkoutInputProps) {
     setError(null);
 
     try {
-      const weightNum = parseFloat(weight);
-      const repsNum = parseInt(reps);
-      const setsNum = parseInt(sets);
-
-      const workoutSets = Array.from({ length: setsNum }, (_, i) => ({
+      const workoutSets = filledSets.map((s, i) => ({
         setNumber: i + 1,
-        weight: weightNum,
-        reps: repsNum,
+        weight: parseFloat(s.weight),
+        reps: parseInt(s.reps),
+        rpe: s.rpe ? parseInt(s.rpe) : undefined,
         isWarmup: false,
         completedAt: new Date(),
       }));
 
       const exercise = {
-        exerciseId: Date.now(),
-        exerciseName,
-        bodyPart: 'other',
+        exerciseId: selectedExercise.id ?? Date.now(),
+        exerciseName: selectedExercise.name,
+        bodyPart: selectedExercise.bodyPart,
         sets: workoutSets,
-        restTimes: Array(setsNum - 1).fill(90),
+        restTimes: Array(Math.max(workoutSets.length - 1, 0)).fill(90),
       };
 
-      const totalVolume = weightNum * repsNum * setsNum;
+      const totalVolume = calculateVolume(workoutSets);
 
       await onSave({
         date,
@@ -55,14 +122,13 @@ export function WorkoutInput({ onSave }: WorkoutInputProps) {
         exercises: [exercise],
         totalVolume,
         memo: memo || undefined,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       });
 
       // Reset form
-      setExerciseName('');
-      setWeight('');
-      setReps('');
+      setSelectedExerciseId('');
+      setSelectedExercise(null);
+      setSets(Array.from({ length: DEFAULT_SET_COUNT }, createEmptySet));
+      setShowRpe(false);
       setMemo('');
       alert('トレーニングを記録しました！');
     } catch (err) {
@@ -95,67 +161,37 @@ export function WorkoutInput({ onSave }: WorkoutInputProps) {
         />
       </div>
 
-      <div>
-        <label htmlFor="exerciseName" className="block text-sm font-medium text-gray-700 mb-1">
-          種目名 *
-        </label>
-        <input
-          type="text"
-          id="exerciseName"
-          value={exerciseName}
-          onChange={(e) => setExerciseName(e.target.value)}
-          placeholder="ベンチプレス"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          required
+      <ExerciseSelector
+        exercises={exercises}
+        value={selectedExerciseId}
+        onChange={handleExerciseChange}
+        disabled={isSaving}
+      />
+
+      {!showNewExerciseForm ? (
+        <button
+          type="button"
+          onClick={() => setShowNewExerciseForm(true)}
+          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+        >
+          + 新しい種目を追加
+        </button>
+      ) : (
+        <NewExerciseForm
+          onSave={handleNewExerciseSave}
+          onCancel={() => setShowNewExerciseForm(false)}
+          saving={isSavingExercise}
         />
-      </div>
+      )}
 
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
-            重量 (kg) *
-          </label>
-          <input
-            type="number"
-            id="weight"
-            step="0.5"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            placeholder="80"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="reps" className="block text-sm font-medium text-gray-700 mb-1">
-            回数 *
-          </label>
-          <input
-            type="number"
-            id="reps"
-            value={reps}
-            onChange={(e) => setReps(e.target.value)}
-            placeholder="10"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="sets" className="block text-sm font-medium text-gray-700 mb-1">
-            セット数
-          </label>
-          <input
-            type="number"
-            id="sets"
-            value={sets}
-            onChange={(e) => setSets(e.target.value)}
-            placeholder="3"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      </div>
+      <SetTable
+        sets={sets}
+        showRpe={showRpe}
+        onShowRpeChange={setShowRpe}
+        onSetChange={handleSetChange}
+        onAddSet={handleAddSet}
+        onRemoveSet={handleRemoveSet}
+      />
 
       <div>
         <label htmlFor="memo" className="block text-sm font-medium text-gray-700 mb-1">

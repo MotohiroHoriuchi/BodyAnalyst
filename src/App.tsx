@@ -7,6 +7,10 @@ const NetworkGraphDemo = import.meta.env.DEV
   ? lazy(() => import('../proto/visualization-engine/src/components/NetworkGraph/NetworkGraphDemo').then(m => ({ default: m.NetworkGraphDemo })))
   : null;
 
+const WorkoutInputPreview = import.meta.env.DEV
+  ? lazy(() => import('./features/workout/components/WorkoutInputPreview').then(m => ({ default: m.WorkoutInputPreview })))
+  : null;
+
 // Pages
 import { HomePage } from './pages/HomePage';
 import { MealPage } from './pages/MealPage';
@@ -26,6 +30,15 @@ function App() {
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
         <NetworkGraphDemo />
+      </Suspense>
+    );
+  }
+
+  // Dev-only: render WorkoutInput preview without auth
+  if (import.meta.env.DEV && WorkoutInputPreview && window.location.pathname === '/proto/workout-input') {
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <WorkoutInputPreview />
       </Suspense>
     );
   }
