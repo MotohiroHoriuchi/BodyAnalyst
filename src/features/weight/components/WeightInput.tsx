@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { WeightRecord } from '../../../types/weight';
 
+type Timing = 'morning' | 'evening' | 'other';
+
+function getTimingFromCurrentTime(): Timing {
+  const hour = new Date().getHours();
+  if (hour < 10) return 'morning';
+  if (hour >= 17) return 'evening';
+  return 'other';
+}
+
 interface WeightInputProps {
   onSave: (record: Omit<WeightRecord, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
 }
@@ -9,7 +18,7 @@ export function WeightInput({ onSave }: WeightInputProps) {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [weight, setWeight] = useState('');
   const [bodyFatPercentage, setBodyFatPercentage] = useState('');
-  const [timing, setTiming] = useState<'morning' | 'evening' | 'other'>('morning');
+  const [timing, setTiming] = useState<Timing>(getTimingFromCurrentTime);
   const [memo, setMemo] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +118,7 @@ export function WeightInput({ onSave }: WeightInputProps) {
         <select
           id="timing"
           value={timing}
-          onChange={(e) => setTiming(e.target.value as 'morning' | 'evening' | 'other')}
+          onChange={(e) => setTiming(e.target.value as Timing)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="morning">朝</option>
