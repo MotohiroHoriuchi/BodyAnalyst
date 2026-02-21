@@ -1,6 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/useAuth';
-import { createSpreadsheet } from '../../db/adapters/google_sheets/spreadsheetSetup';
+import {
+  createSpreadsheet,
+  validateSpreadsheet,
+  findExistingSpreadsheet,
+} from '../../db/adapters/google_sheets/spreadsheetSetup';
 
 interface SpreadsheetSetupModalProps {
   isOpen: boolean;
@@ -8,15 +12,58 @@ interface SpreadsheetSetupModalProps {
   onCancel: () => void;
 }
 
+type SearchStatus = 'searching' | 'found' | 'not-found' | 'error';
+
 export function SpreadsheetSetupModal({ isOpen, onComplete, onCancel }: SpreadsheetSetupModalProps) {
   const { signOut } = useAuth();
-  const [isCreating, setIsCreating] = useState(false);
+  const [searchStatus, setSearchStatus] = useState<SearchStatus>('searching');
+  const [foundSpreadsheet, setFoundSpreadsheet] = useState<{ id: string; name: string } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setSearchStatus('searching');
+    setFoundSpreadsheet(null);
+    setError(null);
+
+    findExistingSpreadsheet()
+      .then((result) => {
+        if (result) {
+          setFoundSpreadsheet(result);
+          setSearchStatus('found');
+        } else {
+          setSearchStatus('not-found');
+        }
+      })
+      .catch(() => {
+        setSearchStatus('error');
+      });
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
+  async function handleUseExisting() {
+    if (!foundSpreadsheet) return;
+    setIsProcessing(true);
+    setError(null);
+    try {
+      const isValid = await validateSpreadsheet(foundSpreadsheet.id);
+      if (!isValid) {
+        setError('スプレッドシートの構造が不完全です。新しく作成してください。');
+        setSearchStatus('not-found');
+        return;
+      }
+      localStorage.setItem('BODYANALYST_SPREADSHEET_ID', foundSpreadsheet.id);
+      onComplete();
+    } finally {
+      setIsProcessing(false);
+    }
+  }
+
   async function handleCreate() {
-    setIsCreating(true);
+    setIsProcessing(true);
     setError(null);
     try {
       const spreadsheetId = await createSpreadsheet();
@@ -25,7 +72,7 @@ export function SpreadsheetSetupModal({ isOpen, onComplete, onCancel }: Spreadsh
     } catch {
       setError('スプレッドシートの作成に失敗しました。もう一度お試しください。');
     } finally {
-      setIsCreating(false);
+      setIsProcessing(false);
     }
   }
 
@@ -40,10 +87,31 @@ export function SpreadsheetSetupModal({ isOpen, onComplete, onCancel }: Spreadsh
         <h2 className="mb-1 text-base font-semibold text-foreground">
           データの保存先を設定します
         </h2>
-        <p className="mb-6 text-xs text-muted-foreground">
-          Google スプレッドシートをデータの保存先として使用します。
-          新しいスプレッドシートを作成するか、既存の ID を入力してください。
-        </p>
+
+        {searchStatus === 'searching' && (
+          <p className="mb-6 text-xs text-muted-foreground">
+            既存のデータを検索中...
+          </p>
+        )}
+
+        {searchStatus === 'found' && foundSpreadsheet && (
+          <>
+            <p className="mb-2 text-xs text-muted-foreground">
+              既存のスプレッドシートが見つかりました。
+            </p>
+            <div className="mb-6 rounded-2xl bg-secondary px-4 py-3">
+              <p className="text-sm font-medium text-foreground">{foundSpreadsheet.name}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">ID: {foundSpreadsheet.id}</p>
+            </div>
+          </>
+        )}
+
+        {(searchStatus === 'not-found' || searchStatus === 'error') && (
+          <p className="mb-6 text-xs text-muted-foreground">
+            Google スプレッドシートをデータの保存先として使用します。
+            新しいスプレッドシートを作成します。
+          </p>
+        )}
 
         {error && (
           <p className="mb-4 rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
@@ -52,18 +120,40 @@ export function SpreadsheetSetupModal({ isOpen, onComplete, onCancel }: Spreadsh
         )}
 
         <div className="flex flex-col gap-3">
-          <button
-            onClick={handleCreate}
-            disabled={isCreating}
-            className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isCreating ? '作成中...' : '新しいスプレッドシートを作成'}
-          </button>
+          {searchStatus === 'found' && (
+            <button
+              onClick={handleUseExisting}
+              disabled={isProcessing}
+              className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isProcessing ? '処理中...' : 'このスプレッドシートを使用する'}
+            </button>
+          )}
+
+          {searchStatus === 'found' && (
+            <button
+              onClick={handleCreate}
+              disabled={isProcessing}
+              className="w-full rounded-2xl bg-secondary py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isProcessing ? '作成中...' : '新しく作成する'}
+            </button>
+          )}
+
+          {(searchStatus === 'not-found' || searchStatus === 'error') && (
+            <button
+              onClick={handleCreate}
+              disabled={isProcessing}
+              className="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isProcessing ? '作成中...' : '新しいスプレッドシートを作成'}
+            </button>
+          )}
 
           <button
             onClick={handleCancel}
-            disabled={isCreating}
-            className="w-full rounded-2xl bg-secondary py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isProcessing}
+            className="w-full rounded-2xl bg-secondary py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80 disabled:cursor-not-allowed disabled:opacity-50"
           >
             キャンセル
           </button>

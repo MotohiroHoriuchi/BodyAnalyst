@@ -1,5 +1,31 @@
 // Spreadsheet Setup Helper
 
+export interface ExistingSpreadsheetInfo {
+  id: string;
+  name: string;
+}
+
+/**
+ * Search for an existing "BodyAnalyst Data" spreadsheet in the user's Drive.
+ * Uses drive.file scope — only files created by this app are visible.
+ * Returns the most recently modified one, or null if none found.
+ */
+export async function findExistingSpreadsheet(): Promise<ExistingSpreadsheetInfo | null> {
+  const response = await gapi.client.drive.files.list({
+    q: "name = 'BodyAnalyst Data' and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false",
+    fields: 'files(id, name, modifiedTime)',
+    orderBy: 'modifiedTime desc',
+    pageSize: 1,
+  });
+
+  const files = response.result.files;
+  if (!files || files.length === 0) {
+    return null;
+  }
+
+  return { id: files[0].id!, name: files[0].name! };
+}
+
 interface SheetConfig {
   name: string;
   headers: string[];
