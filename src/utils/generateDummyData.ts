@@ -133,13 +133,59 @@ export function generateDummyData(days: number = 100) {
       const startDateTime = parse(`${dateStr} 18:00`, 'yyyy-MM-dd HH:mm', new Date());
       const endDateTime = parse(`${dateStr} 19:30`, 'yyyy-MM-dd HH:mm', new Date());
 
+      // Keyword-based workout memos for network analysis
+      // Body part-correlated symptoms and keywords
+      const bodyPartKeywords: Record<string, string[]> = {
+        chest: ['パンプ', '胸の張り', '肩こり'],
+        back: ['握力不足', '背中の張り', '腰痛'],
+        leg: ['膝の違和感', '腰痛', '脚パンパン'],
+        shoulder: ['肩こり', '肩の違和感', 'パンプ'],
+        arm: ['パンプ', '前腕の張り'],
+        core: ['腹筋痛', '体幹安定'],
+        other: [],
+      };
+      const conditionKeywords = ['好調', '不調', '普通', '絶好調', '疲労'];
+      const externalKeywords = [
+        '睡眠十分', '睡眠不足', 'カフェイン摂取', 'ストレッチ実施',
+        'ストレッチ不足', '食事良好', 'プロテイン摂取',
+      ];
+      const performanceKeywords = [
+        '重量更新', 'フォーム改善', 'フォーム意識', '軽め調整',
+        '追い込めた', '集中力高い', '集中力低下',
+      ];
+
+      // Build memo from correlated keywords
+      const memoKeywords: string[] = [];
+      // Add body-part related keywords
+      const usedBodyParts = new Set(selectedExercises.map((e) => e.bodyPart));
+      for (const bp of usedBodyParts) {
+        const keywords = bodyPartKeywords[bp] ?? [];
+        if (keywords.length > 0 && Math.random() > 0.4) {
+          memoKeywords.push(keywords[Math.floor(Math.random() * keywords.length)]);
+        }
+      }
+      // Add condition keyword
+      if (Math.random() > 0.3) {
+        memoKeywords.push(conditionKeywords[Math.floor(Math.random() * conditionKeywords.length)]);
+      }
+      // Add external factor
+      if (Math.random() > 0.5) {
+        memoKeywords.push(externalKeywords[Math.floor(Math.random() * externalKeywords.length)]);
+      }
+      // Add performance keyword
+      if (Math.random() > 0.6) {
+        memoKeywords.push(performanceKeywords[Math.floor(Math.random() * performanceKeywords.length)]);
+      }
+
+      const randomMemo = memoKeywords.length > 0 ? memoKeywords.join(' ') : undefined;
+
       workoutSessions.push({
         date: dateStr,
         startTime: startDateTime,
         endTime: endDateTime,
         exercises,
         totalVolume: Math.round(totalVolume),
-        memo: i % 15 === 0 ? '調子が良かった！' : undefined,
+        memo: randomMemo,
       });
     }
   }

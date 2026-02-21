@@ -1,115 +1,203 @@
-import { useState } from 'react';
-import { signOut } from '../db';
-import { generateDummyData } from '../utils/generateDummyData';
+import { useState } from "react"
+import {
+  User,
+  RefreshCw,
+  Palette,
+  Bell,
+  FileText,
+  Info,
+  ChevronRight,
+  Check,
+  Database,
+  Wrench,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Switch } from "@/components/ui/switch"
 
-export function SettingsPage() {
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [seedMessage, setSeedMessage] = useState('');
+const accentColors = [
+  { name: "Slate", value: "#64748b" },
+  { name: "Zinc", value: "#71717a" },
+  { name: "Stone", value: "#78716c" },
+  { name: "Blue", value: "#3b82f6" },
+  { name: "Cyan", value: "#06b6d4" },
+  { name: "Teal", value: "#14b8a6" },
+]
 
-  const handleSignOut = () => {
-    if (confirm('Are you sure you want to sign out?')) {
-      signOut();
-    }
-  };
+function SettingsGroup({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div>
+      <p className="mb-2 px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {title}
+      </p>
+      <div className="overflow-hidden rounded-3xl bg-card">{children}</div>
+    </div>
+  )
+}
 
-  const handleSeedDummyData = async () => {
-    if (!confirm('これにより既存のデータが削除され、100日分のダミーデータで置き換えられます。続行しますか？')) {
-      return;
-    }
-
-    setIsSeeding(true);
-    setSeedMessage('');
-
-    try {
-      const { weightRecords, mealRecords, workoutSessions } = generateDummyData(100);
-
-      console.log('Seeding dummy data...');
-      console.log(`- ${weightRecords.length} weight records`);
-      console.log(`- ${mealRecords.length} meal records`);
-      console.log(`- ${workoutSessions.length} workout sessions`);
-
-      // Save to localStorage for prototype
-      const weightData = weightRecords.map((record, index) => ({
-        ...record,
-        id: index + 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }));
-
-      const mealData = mealRecords.map((record, index) => ({
-        ...record,
-        id: index + 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }));
-
-      const workoutData = workoutSessions.map((record, index) => ({
-        ...record,
-        id: index + 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }));
-
-      localStorage.setItem('dummy_weights', JSON.stringify(weightData));
-      localStorage.setItem('dummy_meals', JSON.stringify(mealData));
-      localStorage.setItem('dummy_workouts', JSON.stringify(workoutData));
-
-      setSeedMessage('✅ 100日分のダミーデータを生成しました！ページをリロードしてください。');
-
-      // Auto reload after 2 seconds
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (error) {
-      console.error('Error seeding dummy data:', error);
-      setSeedMessage('❌ エラーが発生しました。コンソールを確認してください。');
-    } finally {
-      setIsSeeding(false);
-    }
-  };
+function SettingsRow({
+  icon: Icon,
+  label,
+  value,
+  onClick,
+  trailing,
+  isLast = false,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  value?: string
+  onClick?: () => void
+  trailing?: React.ReactNode
+  isLast?: boolean
+}) {
+  if (trailing) {
+    return (
+      <div
+        className={cn(
+          "flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors",
+          !isLast && "border-b border-border"
+        )}
+      >
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <span className="flex-1 text-sm text-foreground">{label}</span>
+        {trailing}
+      </div>
+    )
+  }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">設定</h1>
-
-      <div className="bg-white rounded-lg shadow divide-y">
-        <div className="p-4">
-          <h3 className="font-medium mb-2">開発者ツール</h3>
-          <p className="text-sm text-gray-600 mb-3">
-            プロトタイプ用のダミーデータを生成します
-          </p>
-          <button
-            onClick={handleSeedDummyData}
-            disabled={isSeeding}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isSeeding ? '生成中...' : 'ダミーデータを生成（100日分）'}
-          </button>
-          {seedMessage && (
-            <p className={`mt-2 text-sm ${seedMessage.startsWith('✅') ? 'text-green-600' : 'text-red-600'}`}>
-              {seedMessage}
-            </p>
-          )}
-        </div>
-
-        <div className="p-4">
-          <h3 className="font-medium mb-2">アカウント</h3>
-          <button
-            onClick={handleSignOut}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-          >
-            サインアウト
-          </button>
-        </div>
-
-        <div className="p-4">
-          <h3 className="font-medium mb-2">アプリ情報</h3>
-          <p className="text-sm text-gray-600">
-            BodyAnalyst - データドリブンなフィットネストラッキング
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Version: Prototype v2</p>
-        </div>
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-secondary/40",
+        !isLast && "border-b border-border"
+      )}
+    >
+      <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary">
+        <Icon className="h-4 w-4 text-muted-foreground" />
       </div>
+      <span className="flex-1 text-sm text-foreground">{label}</span>
+      <div className="flex items-center gap-1.5">
+        {value && (
+          <span className="text-xs text-muted-foreground">{value}</span>
+        )}
+        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+      </div>
+    </button>
+  )
+}
+
+export function SettingsPage() {
+  const [selectedColor, setSelectedColor] = useState("#64748b")
+  const [notifications, setNotifications] = useState(true)
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="px-1">
+        <h1 className="text-xl font-bold text-foreground">Settings</h1>
+      </div>
+
+      {/* Google Integration */}
+      <SettingsGroup title="Google Integration">
+        <div className="px-4 py-4">
+          <p className="mb-3 text-xs text-muted-foreground">
+            Google Sheets
+          </p>
+          <button className="w-full rounded-2xl bg-primary/20 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/30">
+            Google
+          </button>
+        </div>
+      </SettingsGroup>
+
+      {/* Account */}
+      <SettingsGroup title="Account">
+        <SettingsRow icon={User} label="Profile" value="Guest" />
+        <SettingsRow
+          icon={RefreshCw}
+          label="Data Sync"
+          value="Local"
+          isLast
+        />
+      </SettingsGroup>
+
+      {/* Preferences */}
+      <SettingsGroup title="Preferences">
+        <div className={cn("border-b border-border px-4 py-3.5")}>
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-secondary">
+              <Palette className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <span className="text-sm text-foreground">Accent Color</span>
+          </div>
+          <div className="flex gap-3 pl-11">
+            {accentColors.map((color) => (
+              <button
+                key={color.name}
+                onClick={() => setSelectedColor(color.value)}
+                className="relative flex h-8 w-8 items-center justify-center rounded-full transition-transform active:scale-90"
+                style={{ backgroundColor: color.value }}
+                aria-label={`Select ${color.name} color`}
+              >
+                {selectedColor === color.value && (
+                  <Check className="h-4 w-4 text-white" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+        <SettingsRow
+          icon={Bell}
+          label="Notifications"
+          trailing={
+            <Switch
+              checked={notifications}
+              onCheckedChange={setNotifications}
+            />
+          }
+          isLast
+        />
+      </SettingsGroup>
+
+      {/* Developer Tools */}
+      <SettingsGroup title="Developer Tools">
+        <SettingsRow
+          icon={Database}
+          label="Seed Dummy Data"
+          value="100 days"
+          onClick={() => {
+            if (confirm('100 Dummy data will be generated. Continue?')) {
+              console.log('Seeding dummy data...')
+            }
+          }}
+        />
+        <SettingsRow
+          icon={Wrench}
+          label="Force Sync"
+          onClick={() => {
+            console.log('Force syncing...')
+          }}
+          isLast
+        />
+      </SettingsGroup>
+
+      {/* System */}
+      <SettingsGroup title="System">
+        <SettingsRow icon={Info} label="Version" value="1.0.0-beta" />
+        <SettingsRow icon={FileText} label="Terms of Service" isLast />
+      </SettingsGroup>
+
+      {/* Footer */}
+      <p className="text-center text-[10px] text-muted-foreground/50">
+        BodyAnalyst v1.0.0-beta
+      </p>
     </div>
-  );
+  )
 }
