@@ -25,7 +25,7 @@ export abstract class BaseRepository<T> {
     return data;
   }
 
-  protected invalidateCache(collection?: string): void {
+  public invalidateCache(collection?: string): void {
     if (collection) {
       // Invalidate all cache entries for this collection
       const keysToDelete: string[] = [];

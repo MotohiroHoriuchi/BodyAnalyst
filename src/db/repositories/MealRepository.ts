@@ -47,6 +47,27 @@ export class MealRepository extends BaseRepository<MealRecord> {
     this.invalidateCache(MEALS_COLLECTION);
   }
 
+  async saveMealBatch(meals: Omit<MealRecord, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {
+    if (meals.length === 0) return;
+
+    const dataArray = meals.map(meal => ({
+      ...meal,
+      items: JSON.stringify(meal.items),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    if (this.adapter.createBatch) {
+      await this.adapter.createBatch(MEALS_COLLECTION, dataArray);
+    } else {
+      for (const data of dataArray) {
+        await this.adapter.create(MEALS_COLLECTION, data);
+      }
+    }
+
+    this.invalidateCache(MEALS_COLLECTION);
+  }
+
   async deleteMeal(id: number): Promise<void> {
     await this.adapter.delete(MEALS_COLLECTION, String(id));
     this.invalidateCache(MEALS_COLLECTION);

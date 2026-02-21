@@ -31,3 +31,10 @@ export async function initializeDatabase(): Promise<void> {
 export function isDatabaseReady(): boolean {
   return adapter.isReady();
 }
+
+// Force refresh all data from Google Sheets (clear all caches)
+export function forceSyncAll(): void {
+  weightRepository.invalidateCache();
+  workoutRepository.invalidateCache();
+  mealRepository.invalidateCache();
+}

@@ -4,9 +4,20 @@ const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
 
+// LocalStorage key for token cache
+const TOKEN_STORAGE_KEY = 'google_auth_token';
+
 let tokenClient: google.accounts.oauth2.TokenClient | null = null;
 let gapiInited = false;
 let gisInited = false;
+
+/**
+ * Token data structure for caching
+ */
+export interface TokenData {
+  accessToken: string;
+  expiresAt: number; // Timestamp in milliseconds
+}
 
 export interface AuthState {
   isSignedIn: boolean;
@@ -34,10 +45,11 @@ function notifyAuthStateChange(state: AuthState) {
  * Initialize Google API client
  */
 export async function initializeGoogleAPI(): Promise<void> {
-  // Check if environment variables are set
+  // If environment variables are not set, resolve without initializing
+  // The login page will be shown and signIn() will report the error
   if (!CLIENT_ID || !API_KEY) {
     console.warn('Google API credentials not configured. Please set VITE_GOOGLE_CLIENT_ID and VITE_GOOGLE_API_KEY in .env file.');
-    throw new Error('Google API credentials not configured');
+    return;
   }
 
   return new Promise((resolve, reject) => {
@@ -67,7 +79,34 @@ export async function initializeGoogleAPI(): Promise<void> {
                 });
                 gisInited = true;
                 maybeEnableButtons();
-                resolve();
+
+                // Restore session from cached token
+                const cachedToken = getToken();
+                if (cachedToken) {
+                  gapi.client.setToken({
+                    access_token: cachedToken.accessToken,
+                  });
+
+                  // Validate token by making a test API call
+                  validateTokenWithSheetsAPI(cachedToken.accessToken)
+                    .then(() => fetchUserInfo(cachedToken.accessToken))
+                    .then((userInfo) => {
+                      notifyAuthStateChange({
+                        isSignedIn: true,
+                        user: userInfo,
+                      });
+                      resolve();
+                    })
+                    .catch(() => {
+                      // Token is invalid (e.g., revoked), clear cache
+                      console.warn('Cached token is invalid, clearing...');
+                      clearToken();
+                      gapi.client.setToken(null);
+                      resolve();
+                    });
+                } else {
+                  resolve();
+                }
               }
             }, 100);
 
@@ -108,8 +147,12 @@ function maybeEnableButtons() {
  */
 export async function signIn(): Promise<void> {
   return new Promise((resolve, reject) => {
+    if (!CLIENT_ID || !API_KEY) {
+      reject(new Error('Google APIの認証情報が設定されていません。.envファイルにVITE_GOOGLE_CLIENT_IDとVITE_GOOGLE_API_KEYを設定してください。'));
+      return;
+    }
     if (!tokenClient) {
-      reject(new Error('Token client not initialized'));
+      reject(new Error('Google APIの初期化が完了していません。ページを再読み込みしてください。'));
       return;
     }
 
@@ -120,10 +163,17 @@ export async function signIn(): Promise<void> {
         return;
       }
 
-      // Set the access token to gapi
+      // Set the access token to gapi and cache it
       if (response.access_token) {
         gapi.client.setToken({
           access_token: response.access_token,
+        });
+
+        // Cache token in LocalStorage
+        const expiresAt = Date.now() + (response.expires_in ?? 3600) * 1000;
+        saveToken({
+          accessToken: response.access_token,
+          expiresAt,
         });
 
         try {
@@ -160,6 +210,7 @@ export function signOut(): void {
   if (token !== null) {
     google.accounts.oauth2.revoke(token.access_token, () => {
       gapi.client.setToken(null);
+      clearToken();
       notifyAuthStateChange({
         isSignedIn: false,
         user: null,
@@ -181,6 +232,78 @@ export function isSignedIn(): boolean {
 export function getAccessToken(): string | null {
   const token = gapi.client.getToken();
   return token ? token.access_token : null;
+}
+
+/**
+ * Save token data to LocalStorage
+ */
+export function saveToken(tokenData: TokenData): void {
+  localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokenData));
+}
+
+/**
+ * Get token data from LocalStorage
+ * Returns null if token is missing, expired, or invalid
+ * Automatically clears expired or invalid tokens
+ */
+export function getToken(): TokenData | null {
+  const stored = localStorage.getItem(TOKEN_STORAGE_KEY);
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    const parsed: TokenData = JSON.parse(stored);
+    if (parsed.expiresAt <= Date.now()) {
+      clearToken();
+      return null;
+    }
+    return parsed;
+  } catch {
+    clearToken();
+    return null;
+  }
+}
+
+/**
+ * Clear token data from LocalStorage
+ */
+export function clearToken(): void {
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+}
+
+/**
+ * Check if the cached token is valid (exists and not expired)
+ */
+export function isTokenValid(): boolean {
+  return getToken() !== null;
+}
+
+/**
+ * Validate token by making a test Sheets API call
+ */
+async function validateTokenWithSheetsAPI(accessToken: string): Promise<void> {
+  // Try to get spreadsheet metadata to verify token has Sheets API access
+  const spreadsheetId = localStorage.getItem('BODYANALYST_SPREADSHEET_ID') ||
+    import.meta.env.VITE_GOOGLE_SPREADSHEET_ID;
+
+  if (!spreadsheetId) {
+    // No spreadsheet configured, skip validation
+    return;
+  }
+
+  const response = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=properties.title`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Token validation failed');
+  }
 }
 
 /**

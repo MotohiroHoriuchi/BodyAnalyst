@@ -217,4 +217,62 @@ export class GoogleSheetsAdapter implements IStorageAdapter {
   private generateId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
+
+  /**
+   * Create multiple records in a single batch request
+   */
+  async createBatch(collection: string, dataArray: any[]): Promise<string[]> {
+    if (!this.isReady()) {
+      throw new Error('Adapter not ready. Please sign in first.');
+    }
+
+    const spreadsheetId = getSpreadsheetId();
+    if (!spreadsheetId) {
+      throw new Error('Spreadsheet ID not configured');
+    }
+
+    if (dataArray.length === 0) {
+      return [];
+    }
+
+    try {
+      // First, get the headers to know the column order
+      const headerResponse = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: `${collection}!1:1`,
+      });
+
+      const headers = headerResponse.result.values?.[0] || [];
+      if (headers.length === 0) {
+        throw new Error(`No headers found in sheet: ${collection}`);
+      }
+
+      // Generate IDs and convert all objects to rows
+      const ids: string[] = [];
+      const rows: any[][] = [];
+
+      for (const data of dataArray) {
+        const id = data.id || this.generateId();
+        ids.push(String(id));
+        const dataWithId = { ...data, id };
+        const row = objectToRow(dataWithId, headers);
+        rows.push(row);
+      }
+
+      // Append all rows in a single request
+      await gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: `${collection}!A:Z`,
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: rows,
+        },
+      });
+
+      return ids;
+    } catch (error) {
+      console.error('Error creating batch records in Google Sheets:', error);
+      throw error;
+    }
+  }
 }

@@ -46,6 +46,27 @@ export class WeightRepository extends BaseRepository<WeightRecord> {
     this.invalidateCache(COLLECTION_NAME);
   }
 
+  async saveBatch(records: Omit<WeightRecord, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {
+    if (records.length === 0) return;
+
+    const dataArray = records.map(record => ({
+      ...record,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    if (this.adapter.createBatch) {
+      await this.adapter.createBatch(COLLECTION_NAME, dataArray);
+    } else {
+      // Fallback to individual creates
+      for (const data of dataArray) {
+        await this.adapter.create(COLLECTION_NAME, data);
+      }
+    }
+
+    this.invalidateCache(COLLECTION_NAME);
+  }
+
   async delete(id: number): Promise<void> {
     await this.adapter.delete(COLLECTION_NAME, String(id));
     this.invalidateCache(COLLECTION_NAME);

@@ -6,6 +6,9 @@ export interface IStorageAdapter {
   // Create a new record
   create(collection: string, data: any): Promise<string>;
 
+  // Create multiple records in batch (optional, for performance)
+  createBatch?(collection: string, dataArray: any[]): Promise<string[]>;
+
   // Update an existing record
   update(collection: string, id: string, data: any): Promise<void>;
 

@@ -42,6 +42,27 @@ export class WorkoutRepository extends BaseRepository<WorkoutSession> {
     this.invalidateCache(SESSIONS_COLLECTION);
   }
 
+  async saveSessionBatch(sessions: Omit<WorkoutSession, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<void> {
+    if (sessions.length === 0) return;
+
+    const dataArray = sessions.map(session => ({
+      ...session,
+      exercises: JSON.stringify(session.exercises),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    if (this.adapter.createBatch) {
+      await this.adapter.createBatch(SESSIONS_COLLECTION, dataArray);
+    } else {
+      for (const data of dataArray) {
+        await this.adapter.create(SESSIONS_COLLECTION, data);
+      }
+    }
+
+    this.invalidateCache(SESSIONS_COLLECTION);
+  }
+
   async deleteSession(id: number): Promise<void> {
     await this.adapter.delete(SESSIONS_COLLECTION, String(id));
     this.invalidateCache(SESSIONS_COLLECTION);
