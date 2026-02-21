@@ -8,10 +8,10 @@ import type {
   GroupColorMap,
 } from './networkGraphAdapter.types';
 
-const DEFAULT_MIN_NODE_VAL = 2;
-const DEFAULT_MAX_NODE_VAL = 20;
-const DEFAULT_MIN_LINK_WIDTH = 1;
-const DEFAULT_MAX_LINK_WIDTH = 5;
+const DEFAULT_MIN_NODE_VAL = 1;
+const DEFAULT_MAX_NODE_VAL = 6;
+const DEFAULT_MIN_LINK_WIDTH = 0.5;
+const DEFAULT_MAX_LINK_WIDTH = 3;
 const LINK_COLOR = 'rgba(156, 163, 175, 0.5)';
 
 const COLOR_PALETTE = [

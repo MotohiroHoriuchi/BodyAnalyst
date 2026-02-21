@@ -34,8 +34,8 @@ describe('adaptNetworkGraphOutput', () => {
     expect(node.label).toBe('A');
     expect(node.group).toBe('token');
     expect(node.color).toBe(result.colorMap['token']);
-    // Single node → mid-range val (default min=2, max=20, mid=11)
-    expect(node.val).toBe(11);
+    // Single node → mid-range val (default min=1, max=6, mid=3.5)
+    expect(node.val).toBe(3.5);
   });
 
   // Test 3: Same group, different sizes → linear scaling
@@ -54,11 +54,11 @@ describe('adaptNetworkGraphOutput', () => {
     const nodeB = result.graphData.nodes.find((n) => n.id === 'B')!;
     const nodeC = result.graphData.nodes.find((n) => n.id === 'C')!;
 
-    // size 1 → min val (2), size 5 → max val (20)
-    expect(nodeA.val).toBe(2);
-    expect(nodeB.val).toBe(20);
-    // size 3 → linearly between: 2 + (3-1)/(5-1) * (20-2) = 2 + 0.5 * 18 = 11
-    expect(nodeC.val).toBe(11);
+    // size 1 → min val (1), size 5 → max val (6)
+    expect(nodeA.val).toBe(1);
+    expect(nodeB.val).toBe(6);
+    // size 3 → linearly between: 1 + (3-1)/(5-1) * (6-1) = 1 + 0.5 * 5 = 3.5
+    expect(nodeC.val).toBe(3.5);
   });
 
   // Test 4: Multiple groups get different colors, token is always palette[0]
@@ -96,7 +96,7 @@ describe('adaptNetworkGraphOutput', () => {
     const result = adaptNetworkGraphOutput(input);
 
     for (const node of result.graphData.nodes) {
-      expect(node.val).toBe(11); // mid value of default range [2, 20]
+      expect(node.val).toBe(3.5); // mid value of default range [1, 6]
     }
   });
 
@@ -126,11 +126,11 @@ describe('adaptNetworkGraphOutput', () => {
       (l) => l.source === 'A' && l.target === 'C'
     )!;
 
-    // weight 1 → min width (1), weight 5 → max width (5)
-    expect(linkAB.width).toBe(1);
-    expect(linkBC.width).toBe(5);
-    // weight 3 → 1 + (3-1)/(5-1) * (5-1) = 1 + 2 = 3
-    expect(linkAC.width).toBe(3);
+    // weight 1 → min width (0.5), weight 5 → max width (3)
+    expect(linkAB.width).toBe(0.5);
+    expect(linkBC.width).toBe(3);
+    // weight 3 → 0.5 + (3-1)/(5-1) * (3-0.5) = 0.5 + 0.5 * 2.5 = 1.75
+    expect(linkAC.width).toBe(1.75);
   });
 
   // Test 7: All links same weight → mid-range width
@@ -144,7 +144,7 @@ describe('adaptNetworkGraphOutput', () => {
     };
     const result = adaptNetworkGraphOutput(input);
 
-    expect(result.graphData.links[0].width).toBe(3); // mid of [1, 5]
+    expect(result.graphData.links[0].width).toBe(1.75); // mid of [0.5, 3]
   });
 
   // Test 8: Link color is semi-transparent gray

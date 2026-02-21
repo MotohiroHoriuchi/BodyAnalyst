@@ -1,5 +1,5 @@
 // proto/visualization-engine/src/components/NetworkGraph/NetworkGraphDemo.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PipelineEngine } from '../../../src/Pipeline';
 import { MockDataSource } from '../../../src/sources/MockDataSource';
 import { TokenizerFilter } from '../../../src/filters/TokenizerFilter';
@@ -69,6 +69,19 @@ export function NetworkGraphDemo() {
   );
   const [error, setError] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setContainerWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [graphOutput]);
 
   useEffect(() => {
     const runPipeline = async () => {
@@ -122,13 +135,15 @@ export function NetworkGraphDemo() {
         )}
 
         {graphOutput ? (
-          <div className="bg-white border border-neutral-200 rounded-sm overflow-hidden">
-            <NetworkGraph
-              data={graphOutput}
-              width={900}
-              height={600}
-              onNodeClick={setSelectedNode}
-            />
+          <div ref={containerRef} className="bg-white border border-neutral-200 rounded-sm overflow-hidden">
+            {containerWidth > 0 && (
+              <NetworkGraph
+                data={graphOutput}
+                width={containerWidth}
+                height={Math.min(containerWidth * 0.7, 600)}
+                onNodeClick={setSelectedNode}
+              />
+            )}
           </div>
         ) : (
           !error && (

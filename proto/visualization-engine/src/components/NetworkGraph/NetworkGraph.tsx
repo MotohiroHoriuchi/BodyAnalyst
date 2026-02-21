@@ -15,6 +15,12 @@ interface NetworkGraphProps {
   onNodeClick?: (nodeId: string) => void;
 }
 
+/** nodeVal → 描画半径（react-force-graph-2d のデフォルト計算式） */
+const NODE_REL_SIZE = 4;
+function valToRadius(val: number): number {
+  return Math.sqrt(val) * NODE_REL_SIZE;
+}
+
 export function NetworkGraph({
   data,
   width,
@@ -31,8 +37,14 @@ export function NetworkGraph({
   );
 
   useEffect(() => {
+    const fg = graphRef.current;
+    if (!fg) return;
+
+    // ノード間の反発力を強化してラベルが重ならないようにする
+    fg.d3Force('charge')?.strength(-150)?.distanceMax(200);
+
     const timer = setTimeout(() => {
-      graphRef.current?.zoomToFit(400, 50);
+      fg.zoomToFit(400, 50);
     }, 500);
     return () => clearTimeout(timer);
   }, [graphData]);
@@ -46,8 +58,26 @@ export function NetworkGraph({
     [onNodeClick]
   );
 
-  const nodeLabel = useCallback(
-    (node: any) => `${node.label} (${node.size})`,
+  const nodeCanvasObject = useCallback(
+    (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const radius = valToRadius(node.val ?? 1);
+      const x = node.x ?? 0;
+      const y = node.y ?? 0;
+
+      // ノード円を描画
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = node.color || '#6366F1';
+      ctx.fill();
+
+      // ラベルテキスト描画（ズームに応じてスケーリング）
+      const fontSize = Math.max(10 / globalScale, 2);
+      ctx.font = `${fontSize}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#374151';
+      ctx.fillText(node.label, x, y + radius + 1);
+    },
     []
   );
 
@@ -60,8 +90,14 @@ export function NetworkGraph({
         height={height}
         nodeId="id"
         nodeVal="val"
-        nodeColor="color"
-        nodeLabel={nodeLabel}
+        nodeCanvasObject={nodeCanvasObject}
+        nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
+          const radius = valToRadius(node.val ?? 1);
+          ctx.beginPath();
+          ctx.arc(node.x ?? 0, node.y ?? 0, radius, 0, 2 * Math.PI);
+          ctx.fillStyle = color;
+          ctx.fill();
+        }}
         linkWidth="width"
         linkColor="color"
         onNodeClick={handleNodeClick}

@@ -1,4 +1,5 @@
 // proto/visualization-engine/tests/pipeline.test.ts
+// @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { PipelineEngine } from '../src/Pipeline';
 import { MockDataSource } from '../src/sources/MockDataSource';
