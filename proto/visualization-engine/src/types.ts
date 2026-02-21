@@ -9,9 +9,9 @@
 export interface DataPoint {
   /** Unique key representing time (Unix timestamp in milliseconds) */
   timestamp: number;
-  /** Dynamic fields (weight, volume, etc.) */
+  /** Dynamic fields (weight, volume, tokens, etc.) */
   attributes: {
-    [key: string]: number | string | null;
+    [key: string]: number | string | string[] | null;
   };
   /** Origin information, etc. */
   metadata?: Record<string, any>;
