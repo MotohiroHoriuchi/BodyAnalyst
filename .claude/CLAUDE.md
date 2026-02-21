@@ -19,6 +19,23 @@ The core value proposition is enabling users to visualize their training data in
 - **Test-Driven Development (TDD):** Implementation MUST follow the Red-Green-Refactor cycle. Tests MUST be written before the implementation code.
 - **Classical Testing Style:** Use the "Classical" (Detroit) school of testing. Avoid mocking internal dependencies; use real implementation and objects whenever possible. Mocking should be reserved for external boundaries (e.g., Network API, Database, System Time) to ensure tests reflect real behavior and provide high confidence.
 
+## Consultation Rules
+
+- **CRITICAL:**
+  - **Start of Task:** You MUST consult `gemini` to review your execution plan before starting implementation.
+  - **End of Task:** You MUST consult `gemini` to check for any missing parts or deficiencies upon completion.
+
+- **Consult Gemini immediately when:**
+  - Problems arise during execution.
+  - You are unsure between multiple options.
+  - The cause of an error or unexpected behavior cannot be identified.
+
+- **Collaboration Mindset:**
+  You and Gemini are both expert engineers with different characteristics. When consulting:
+  - Do not blindly accept Gemini's suggestions; understand the reasoning and evidence.
+  - If your analysis differs, compare and evaluate both perspectives.
+  - **Final Decision:** Make the final decision yourself after synthetically evaluating both opinions.
+
 ### Tech Stack (Official Version)
 - **Frontend:** React, TypeScript, Vite
 - **Styling:** Tailwind CSS, shadcn/ui (assumed based on prototype preference)

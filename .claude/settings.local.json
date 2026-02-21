@@ -18,9 +18,43 @@
       "Bash(npm run build:*)",
       "Bash(git worktree:*)",
       "Bash(grep:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(./.claude/skills/consult-architect/consult.sh \"Google認証情報のキャッシュ機能の実装が完了しました。以下の内容をレビューしてください。\n\n## 実装内容\n\nsrc/db/adapters/google_sheets/auth.ts に以下の4関数を追加:\n\n1. saveToken\\(tokenData: TokenData\\) - LocalStorageにトークンデータ（accessToken + expiresAt）をJSON形式で保存\n2. getToken\\(\\): TokenData | null - LocalStorageからトークンを取得。期限切れ・不正JSONの場合は自動クリアしてnull返却\n3. clearToken\\(\\) - LocalStorageからトークンを削除\n4. isTokenValid\\(\\): boolean - キャッシュされたトークンが有効かチェック\n\n## 既存関数への統合\n\n- signIn\\(\\): OAuthレスポンス受信時に saveToken\\(\\) でキャッシュ保存（expires_in からミリ秒のタイムスタンプを計算）\n- signOut\\(\\): トークンrevoke後に clearToken\\(\\) でキャッシュ削除\n- initializeGoogleAPI\\(\\): GIS初期化完了後に getToken\\(\\) でキャッシュ確認 → 有効なら gapi.client.setToken\\(\\) + fetchUserInfo\\(\\) でセッション復元。fetchUserInfo失敗時はキャッシュクリア\n\n## 仕様準拠\n\n- docs/module-definition/infrastructure/SPECIFICATIONS.md セクション3.3のライフサイクル（Login→App Init→Logout）に準拠\n- docs/technology-research/oauth2-mechanism-overview.md のトークン永続化戦略に準拠\n\n## テスト結果\n\n- 13テスト全てパス（saveToken: 2, getToken: 4, clearToken: 2, isTokenValid: 3, 統合テスト: 2）\n\n## 実際のコード\n\n\\\\`\\\\`\\\\`typescript\n// Token cache functions\nexport function saveToken\\(tokenData: TokenData\\): void {\n  localStorage.setItem\\(TOKEN_STORAGE_KEY, JSON.stringify\\(tokenData\\)\\);\n}\n\nexport function getToken\\(\\): TokenData | null {\n  const stored = localStorage.getItem\\(TOKEN_STORAGE_KEY\\);\n  if \\(!stored\\) return null;\n  try {\n    const parsed: TokenData = JSON.parse\\(stored\\);\n    if \\(parsed.expiresAt <= Date.now\\(\\)\\) {\n      clearToken\\(\\);\n      return null;\n    }\n    return parsed;\n  } catch {\n    clearToken\\(\\);\n    return null;\n  }\n}\n\nexport function clearToken\\(\\): void {\n  localStorage.removeItem\\(TOKEN_STORAGE_KEY\\);\n}\n\nexport function isTokenValid\\(\\): boolean {\n  return getToken\\(\\) !== null;\n}\n\n// signIn integration - after receiving access_token:\nconst expiresAt = Date.now\\(\\) + \\(response.expires_in ?? 3600\\) * 1000;\nsaveToken\\({ accessToken: response.access_token, expiresAt }\\);\n\n// signOut integration - after revoke:\nclearToken\\(\\);\n\n// initializeGoogleAPI integration - after GIS init:\nconst cachedToken = getToken\\(\\);\nif \\(cachedToken\\) {\n  gapi.client.setToken\\({ access_token: cachedToken.accessToken }\\);\n  fetchUserInfo\\(cachedToken.accessToken\\)\n    .then\\(\\(userInfo\\) => {\n      notifyAuthStateChange\\({ isSignedIn: true, user: userInfo }\\);\n    }\\)\n    .catch\\(\\(\\) => {\n      clearToken\\(\\);\n      gapi.client.setToken\\(null\\);\n    }\\);\n}\n\\\\`\\\\`\\\\`\n\n不足や改善点はありますか？\")",
+      "Bash(npx vitest run:*)",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(npx vite build:*)",
+      "Bash(npx vite:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_close"
     ],
     "deny": [],
     "ask": []
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat | jq -r '\"display notification \\\"\" + .message + \"\\\" with title \\\"\" + .title + \"\\\" sound name \\\"Glass\\\"\"' | xargs -I {} osascript -e '{}'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"作業が完了しました。\" with title \"Claude Code\" sound name \"Glass\"'"
+          }
+        ]
+      }
+    ]
   }
 }
