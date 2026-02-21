@@ -1,24 +1,25 @@
-import { describe, it, expect, beforeEach, vi, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import {
-  saveToken,
-  getToken,
-  clearToken,
-  isTokenValid,
-  type TokenData,
+  saveConnectionState,
+  getConnectionState,
+  clearConnectionState,
+  isGoogleConnectionValid,
+  type GoogleConnectionState,
 } from './auth';
 
-describe('Token Cache Management', () => {
-  const STORAGE_KEY = 'google_auth_token';
+describe('Google Connection State Management', () => {
+  const STORAGE_KEY = 'google_connection_state';
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
   // Setup localStorage mock
   beforeAll(() => {
     const localStorageMock = {
       store: {} as Record<string, string>,
       getItem(key: string) {
-        return this.store[key] || null;
+        return this.store[key] ?? null;
       },
       setItem(key: string, value: string) {
-        this.store[key] = value.toString();
+        this.store[key] = value;
       },
       removeItem(key: string) {
         delete this.store[key];
@@ -27,197 +28,260 @@ describe('Token Cache Management', () => {
         this.store = {};
       },
     };
-
     global.localStorage = localStorageMock as any;
   });
 
   beforeEach(() => {
-    // Clear localStorage before each test
     localStorage.clear();
-    // Reset time mocks
     vi.useRealTimers();
   });
 
-  describe('saveToken', () => {
-    it('accessTokenとexpiresAtをLocalStorageに保存できること', () => {
-      const tokenData: TokenData = {
-        accessToken: 'ya29.a0test123',
-        expiresAt: Date.now() + 3600000, // 1時間後
+  describe('saveConnectionState()', () => {
+    it('接続状態をLocalStorageに保存できること', () => {
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        picture: 'https://example.com/avatar.png',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
       };
 
-      saveToken(tokenData);
+      saveConnectionState(state);
 
       const stored = localStorage.getItem(STORAGE_KEY);
       expect(stored).not.toBeNull();
-
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        expect(parsed.accessToken).toBe(tokenData.accessToken);
-        expect(parsed.expiresAt).toBe(tokenData.expiresAt);
-      }
+      const parsed = JSON.parse(stored!);
+      expect(parsed.email).toBe('test@gmail.com');
+      expect(parsed.name).toBe('テストユーザー');
     });
 
-    it('既存のトークンを上書きできること', () => {
-      const oldToken: TokenData = {
-        accessToken: 'old_token',
-        expiresAt: Date.now() + 1000,
+    it('accessToken を保存しないこと', () => {
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
       };
 
-      const newToken: TokenData = {
-        accessToken: 'new_token',
-        expiresAt: Date.now() + 5000,
-      };
-
-      saveToken(oldToken);
-      saveToken(newToken);
+      saveConnectionState(state);
 
       const stored = localStorage.getItem(STORAGE_KEY);
-      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored!);
+      expect(parsed).not.toHaveProperty('accessToken');
+    });
 
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        expect(parsed.accessToken).toBe(newToken.accessToken);
-        expect(parsed.expiresAt).toBe(newToken.expiresAt);
-      }
+    it('connectionExpiresAt が connectedAt + 30日 であること', () => {
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
+      };
+
+      saveConnectionState(state);
+
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const parsed = JSON.parse(stored!);
+      expect(parsed.connectionExpiresAt).toBe(now + THIRTY_DAYS_MS);
+    });
+
+    it('既存の接続状態を上書きできること', () => {
+      const now = Date.now();
+      const state1: GoogleConnectionState = {
+        email: 'first@gmail.com',
+        name: 'First User',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
+      };
+      const state2: GoogleConnectionState = {
+        email: 'second@gmail.com',
+        name: 'Second User',
+        connectedAt: now + 1000,
+        connectionExpiresAt: now + 1000 + THIRTY_DAYS_MS,
+      };
+
+      saveConnectionState(state1);
+      saveConnectionState(state2);
+
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const parsed = JSON.parse(stored!);
+      expect(parsed.email).toBe('second@gmail.com');
     });
   });
 
-  describe('getToken', () => {
-    it('保存されたトークンを取得できること', () => {
-      const tokenData: TokenData = {
-        accessToken: 'ya29.a0test123',
-        expiresAt: Date.now() + 3600000, // 1時間後
+  describe('getConnectionState()', () => {
+    it('保存された接続状態を取得できること', () => {
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
       };
 
-      saveToken(tokenData);
-      const retrieved = getToken();
+      saveConnectionState(state);
+      const retrieved = getConnectionState();
 
       expect(retrieved).not.toBeNull();
-      expect(retrieved?.accessToken).toBe(tokenData.accessToken);
-      expect(retrieved?.expiresAt).toBe(tokenData.expiresAt);
+      expect(retrieved?.email).toBe('test@gmail.com');
+      expect(retrieved?.name).toBe('テストユーザー');
     });
 
-    it('トークンがない場合はnullを返すこと', () => {
-      const retrieved = getToken();
+    it('接続状態がない場合は null を返すこと', () => {
+      const retrieved = getConnectionState();
       expect(retrieved).toBeNull();
     });
 
-    it('有効期限が切れている場合はnullを返し、LocalStorageからクリアすること', () => {
-      const expiredToken: TokenData = {
-        accessToken: 'ya29.a0expired',
-        expiresAt: Date.now() - 1000, // 過去の時刻（期限切れ）
+    it('30日以内の接続状態は正常に返すこと', () => {
+      vi.useFakeTimers();
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
       };
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(expiredToken));
+      saveConnectionState(state);
 
-      const retrieved = getToken();
-      expect(retrieved).toBeNull();
-
-      // LocalStorageからも削除されていることを確認
-      const stored = localStorage.getItem(STORAGE_KEY);
-      expect(stored).toBeNull();
+      // 29日後
+      vi.setSystemTime(now + 29 * 24 * 60 * 60 * 1000);
+      const retrieved = getConnectionState();
+      expect(retrieved).not.toBeNull();
     });
 
-    it('不正なJSONデータの場合はnullを返し、クリアすること', () => {
-      localStorage.setItem(STORAGE_KEY, 'invalid json');
+    it('30日経過した接続状態は null を返し、LocalStorage から削除されること', () => {
+      vi.useFakeTimers();
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
+      };
 
-      const retrieved = getToken();
+      saveConnectionState(state);
+
+      // 31日後（期限切れ）
+      vi.setSystemTime(now + 31 * 24 * 60 * 60 * 1000);
+      const retrieved = getConnectionState();
       expect(retrieved).toBeNull();
 
-      // LocalStorageからも削除されていることを確認
-      const stored = localStorage.getItem(STORAGE_KEY);
-      expect(stored).toBeNull();
+      // LocalStorage からも削除されていること
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    });
+
+    it('不正なJSONデータの場合は null を返し、クリアすること', () => {
+      localStorage.setItem(STORAGE_KEY, 'invalid json data');
+      const retrieved = getConnectionState();
+      expect(retrieved).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
     });
   });
 
-  describe('clearToken', () => {
-    it('LocalStorageからトークンを削除できること', () => {
-      const tokenData: TokenData = {
-        accessToken: 'ya29.a0test123',
-        expiresAt: Date.now() + 3600000,
+  describe('clearConnectionState()', () => {
+    it('LocalStorage から接続状態を削除できること', () => {
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
       };
 
-      saveToken(tokenData);
+      saveConnectionState(state);
       expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull();
 
-      clearToken();
-
-      const stored = localStorage.getItem(STORAGE_KEY);
-      expect(stored).toBeNull();
-    });
-
-    it('トークンがない場合でもエラーにならないこと', () => {
-      expect(() => clearToken()).not.toThrow();
-    });
-  });
-
-  describe('isTokenValid', () => {
-    it('有効なトークンの場合はtrueを返すこと', () => {
-      const validToken: TokenData = {
-        accessToken: 'ya29.a0valid',
-        expiresAt: Date.now() + 3600000, // 1時間後
-      };
-
-      saveToken(validToken);
-
-      const isValid = isTokenValid();
-      expect(isValid).toBe(true);
-    });
-
-    it('期限切れのトークンの場合はfalseを返すこと', () => {
-      const expiredToken: TokenData = {
-        accessToken: 'ya29.a0expired',
-        expiresAt: Date.now() - 1000, // 過去の時刻
-      };
-
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(expiredToken));
-
-      const isValid = isTokenValid();
-      expect(isValid).toBe(false);
-    });
-
-    it('トークンがない場合はfalseを返すこと', () => {
-      const isValid = isTokenValid();
-      expect(isValid).toBe(false);
-    });
-  });
-
-  describe('Token Lifecycle (統合テスト)', () => {
-    it('ログイン→セッション復元→ログアウトのフローが正しく動作すること', () => {
-      // 1. ログイン時: トークンを保存
-      const loginToken: TokenData = {
-        accessToken: 'ya29.a0login_token',
-        expiresAt: Date.now() + 3600000,
-      };
-      saveToken(loginToken);
-
-      // 2. アプリ初期化時: 有効なトークンを復元
-      const restoredToken = getToken();
-      expect(restoredToken).not.toBeNull();
-      expect(restoredToken?.accessToken).toBe(loginToken.accessToken);
-      expect(isTokenValid()).toBe(true);
-
-      // 3. ログアウト時: トークンを削除
-      clearToken();
-      expect(getToken()).toBeNull();
-      expect(isTokenValid()).toBe(false);
-    });
-
-    it('有効期限切れトークンは自動的にクリアされること', () => {
-      // 期限切れのトークンを保存
-      const expiredToken: TokenData = {
-        accessToken: 'ya29.a0expired_token',
-        expiresAt: Date.now() - 1000,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(expiredToken));
-
-      // 取得時に自動クリアされる
-      const token = getToken();
-      expect(token).toBeNull();
+      clearConnectionState();
       expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    });
 
-      // 有効性チェックもfalse
-      expect(isTokenValid()).toBe(false);
+    it('接続状態がない場合でもエラーにならないこと', () => {
+      expect(() => clearConnectionState()).not.toThrow();
+    });
+  });
+
+  describe('isGoogleConnectionValid()', () => {
+    it('有効な接続状態の場合は true を返すこと', () => {
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
+      };
+
+      saveConnectionState(state);
+      expect(isGoogleConnectionValid()).toBe(true);
+    });
+
+    it('接続状態がない場合は false を返すこと', () => {
+      expect(isGoogleConnectionValid()).toBe(false);
+    });
+
+    it('期限切れの接続状態の場合は false を返すこと', () => {
+      vi.useFakeTimers();
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'test@gmail.com',
+        name: 'テストユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
+      };
+
+      saveConnectionState(state);
+
+      // 31日後（期限切れ）
+      vi.setSystemTime(now + 31 * 24 * 60 * 60 * 1000);
+      expect(isGoogleConnectionValid()).toBe(false);
+    });
+  });
+
+  describe('Connection State Lifecycle（統合テスト）', () => {
+    it('接続 → 状態確認 → 切断のフローが正しく動作すること', () => {
+      const now = Date.now();
+
+      // 1. 接続時: 接続状態を保存
+      const state: GoogleConnectionState = {
+        email: 'user@gmail.com',
+        name: 'ユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
+      };
+      saveConnectionState(state);
+
+      // 2. 接続状態確認
+      expect(isGoogleConnectionValid()).toBe(true);
+      const retrieved = getConnectionState();
+      expect(retrieved?.email).toBe('user@gmail.com');
+
+      // 3. 切断時: 接続状態を削除
+      clearConnectionState();
+      expect(isGoogleConnectionValid()).toBe(false);
+      expect(getConnectionState()).toBeNull();
+    });
+
+    it('30日TTLは正確に機能すること', () => {
+      vi.useFakeTimers();
+      const now = Date.now();
+      const state: GoogleConnectionState = {
+        email: 'user@gmail.com',
+        name: 'ユーザー',
+        connectedAt: now,
+        connectionExpiresAt: now + THIRTY_DAYS_MS,
+      };
+      saveConnectionState(state);
+
+      // 29日23時間後はまだ有効
+      vi.setSystemTime(now + THIRTY_DAYS_MS - 3600000);
+      expect(isGoogleConnectionValid()).toBe(true);
+
+      // 30日後は無効
+      vi.setSystemTime(now + THIRTY_DAYS_MS + 1);
+      expect(isGoogleConnectionValid()).toBe(false);
     });
   });
 });

@@ -1,6 +1,7 @@
 import { afterEach, beforeAll } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import 'fake-indexeddb/auto';
 
 // Setup localStorage mock for tests
 beforeAll(() => {

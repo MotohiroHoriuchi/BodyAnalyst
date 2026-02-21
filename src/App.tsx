@@ -1,5 +1,8 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './auth/AuthContext';
+import { AppLoadingScreen } from './components/AppLoadingScreen';
+import { initializeDatabase } from './db/index';
 
 // Proto pages (dev-only)
 const NetworkGraphDemo = import.meta.env.DEV
@@ -19,6 +22,31 @@ import { SettingsPage } from './pages/SettingsPage';
 
 // Layout
 import { MainLayout } from './components/layout/MainLayout';
+
+function AppContent() {
+  const [isDbReady, setIsDbReady] = useState(false);
+
+  useEffect(() => {
+    initializeDatabase().then(() => setIsDbReady(true));
+  }, []);
+
+  if (!isDbReady) return <AppLoadingScreen />;
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="workout" element={<WorkoutPage />} />
+          <Route path="meal" element={<MealPage />} />
+          <Route path="weight" element={<WeightPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 function App() {
   // Set dark mode on mount
@@ -45,18 +73,9 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="workout" element={<WorkoutPage />} />
-          <Route path="meal" element={<MealPage />} />
-          <Route path="weight" element={<WeightPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
