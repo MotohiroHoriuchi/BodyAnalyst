@@ -7,6 +7,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    headers: {
+      // Allow Google OAuth popups to communicate with this page
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
   },
   resolve: {
     alias: {

@@ -141,6 +141,11 @@ export async function initializeGoogleAPI(): Promise<void> {
     return;
   }
 
+  // Already initialized — skip to avoid resetting gapi.client and tokenClient
+  if (gapiInited && gisInited) {
+    return;
+  }
+
   return new Promise((resolve, reject) => {
     const waitForGapi = setInterval(() => {
       if (typeof gapi !== 'undefined') {

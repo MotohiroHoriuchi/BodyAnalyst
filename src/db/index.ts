@@ -55,23 +55,22 @@ export async function initializeDatabase(): Promise<void> {
   // 1. Initialize IndexedDB immediately (fast, no network)
   await indexedDBAdapter.initialize();
 
-  // 2. Try background Google reconnection if connection state is valid
-  if (isGoogleConnectionValid()) {
-    // Fire and forget — do not await
-    (async () => {
-      try {
-        await initializeGoogleAPI();
-        if (isSignedIn()) {
-          const sheetsAdapter = new GoogleSheetsAdapter();
-          await sheetsAdapter.initialize();
-          proxy.setCurrent(sheetsAdapter);
-          notifyAdapterChanged('google');
-        }
-      } catch {
-        // Silent failure — stay on IndexedDB, user reconnects from Settings
+  // 2. Initialize Google API in background (always needed for sign-in from Settings)
+  // Fire and forget — do not await
+  (async () => {
+    try {
+      await initializeGoogleAPI();
+      // Only switch to Google adapter if we have a valid connection and are signed in
+      if (isGoogleConnectionValid() && isSignedIn()) {
+        const sheetsAdapter = new GoogleSheetsAdapter();
+        await sheetsAdapter.initialize();
+        proxy.setCurrent(sheetsAdapter);
+        notifyAdapterChanged('google');
       }
-    })();
-  }
+    } catch {
+      // Silent failure — stay on IndexedDB, user reconnects from Settings
+    }
+  })();
 }
 
 /**
