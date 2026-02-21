@@ -13,4 +13,4 @@
 - [ ] `docs/module-definition/auth/SPECIFICATIONS.md` を作成し、`@react-oauth/google` などのライブラリ選定、`AuthProvider` の構成、LocalStorageへのトークン保存の実装ロジックを定義する。
 
 ## ダッシュボード実装仕様の具体化
-- [ ] デザインプロトタイプ (`design_prototypes/dashboard/`) を元に、`docs/module-definition/dashboard/SPECIFICATIONS.md` を作成・詳細化する。コンポーネント分割、Grid Systemの実装方針を確定する。
+- [x] デザインプロトタイプ (`design_prototypes/dashboard/`) を元に、`docs/module-definition/dashboard/SPECIFICATIONS.md` を作成・詳細化する。コンポーネント分割、Grid Systemの実装方針を確定する。
