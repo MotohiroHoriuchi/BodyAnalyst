@@ -10,6 +10,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@': path.resolve(__dirname, 'src'),
       // Deduplicate React to prevent "Invalid hook call" errors
       // from libraries like react-force-graph-2d / react-kapsule
       react: path.resolve(__dirname, 'node_modules/react'),
