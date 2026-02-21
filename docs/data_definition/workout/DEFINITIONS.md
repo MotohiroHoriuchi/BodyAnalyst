@@ -59,6 +59,11 @@
 | isWarmup | boolean | Yes | Whether it is a warmup set |
 | completedAt | Date | Yes | Completion timestamp |
 
+## Analytical Note
+- **Estimated 1RM:** Calculated for each set using the formula: `Weight * (1 + 0.0333 * Reps)` (Epley) or similar, especially for BIG3.
+- **Top Set:** The set with the highest Estimated 1RM in a session is used for trend analysis.
+- **Training Volume:** `sum(Weight * Reps)` per exercise, used to detect "under-volume" plateaus.
+
 ## Example Data: WorkoutSession
 
 ```json

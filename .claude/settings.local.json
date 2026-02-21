@@ -28,7 +28,9 @@
       "Bash(npx vite:*)",
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_click",
-      "mcp__playwright__browser_close"
+      "mcp__playwright__browser_close",
+      "Bash(tail:*)",
+      "Bash(tail:*.test)"
     ],
     "deny": [],
     "ask": []

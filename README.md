@@ -1,88 +1,56 @@
-# BodyAnalyst Prototype v2
+# MySBDCoach
 
-This is a complete rewrite of the BodyAnalyst application following the official specifications in `docs/`.
+**Break your plateaus. Master the BIG3.**
+
+MySBDCoach is a specialized performance analytics tool for powerlifters and strength enthusiasts focusing on the BIG3 lifts: **Squat, Bench Press, and Deadlift**. 
+
+Unlike general fitness trackers, MySBDCoach analyzes the relationship between your training volume, body weight, nutrition, and recovery to identify exactly why your progress has stalled.
+
+## Core Features
+
+- **1RM Trend Analysis:** Track your estimated 1RM (Squat/Bench/Deadlift) with high-precision charts.
+- **Plateau Detection:** Automatic identification of stagnant progress using rule-based analysis.
+- **Bottleneck Analysis (Pro):** Correlation ranking of factors (Volume, PFC, Body Weight) to find the cause of plateaus.
+- **Rule-Based Action Plans (Pro):** Receive specific, actionable advice (e.g., "Increase calories by 10%") to break your personal records.
+- **Minimalist Logging:** Optimized for the gym floor. Log your SBD sets and daily life metrics in seconds.
 
 ## Architecture
 
-This prototype implements a **data-centric, Google Sheets-based architecture** as specified in the documentation:
+MySBDCoach follows a **Spec-Driven Development (SDD)** approach. The source of truth resides in the `docs/` directory.
 
-### Key Design Decisions
+- **Data-Centric Architecture**: Leveraging Google Sheets for user-owned data persistence.
+- **Feature-Based Module System**: Decoupled modules for BIG3 Analysis, Training Log, and Life Metrics.
 
-1. **Data Storage**: Google Drive Spreadsheets (user owns the data)
-2. **Authentication**: Google OAuth2 (Google Identity Services)
-3. **App Type**: Client-side SPA (Single Page Application)
-4. **Architecture Style**: Feature-Based Architecture (see ADR 0002)
-
-### Directory Structure
+## Project Structure
 
 ```
+docs/
+├── data_definition/    # Data schemas (SBD, Weight, PFC)
+├── design/             # UI/UX specifications and prototypes
+└── screen_definition/  # Screen layouts and user flows
 src/
-├── components/         # Common UI Components
-│   └── layout/        # Layout components (MainLayout, etc.)
-├── db/                # Data Layer (Infrastructure)
-│   ├── interfaces/    # Abstract interfaces (IStorageAdapter)
-│   ├── adapters/      # Implementation (GoogleSheetsAdapter)
-│   │   └── google_sheets/
-│   ├── repositories/  # Domain repositories with caching
-│   └── index.ts       # Public API
-├── features/          # Feature modules
-│   ├── weight/        # Weight tracking module
-│   ├── meal/          # Meal tracking module
-│   ├── workout/       # Workout tracking module
-│   └── analytics/     # Analytics & Visualization Engine
-│       └── engine/    # Pure functional transformers
-├── pages/             # Route pages
-├── types/             # Shared type definitions
-└── utils/             # Shared utilities
+├── features/           
+│   ├── big3/          # Analysis engine & Dashboard
+│   ├── training/      # Workout logging
+│   └── life/          # Weight & Nutrition
 ```
 
-## Setup
+## Getting Started
 
-### 1. Install Dependencies
+### 1. Documentation First
+Always refer to `docs/` before making changes. This project follows strict specification-led implementation.
 
+### 2. Setup
 ```bash
 npm install
-```
-
-### 2. Configure Google API
-
-Create a `.env` file based on `.env.example`:
-
-```bash
 cp .env.example .env
-```
-
-Then fill in your Google API credentials:
-
-- `VITE_GOOGLE_CLIENT_ID`: Your OAuth 2.0 Client ID
-- `VITE_GOOGLE_API_KEY`: Your API Key
-- `VITE_GOOGLE_SPREADSHEET_ID`: Your target spreadsheet ID
-
-### 3. Prepare Google Sheets
-
-Create a new Google Spreadsheet with the following sheets:
-
-- `Weight` - with headers: id, date, weight, bodyFatPercentage, muscleMass, timing, memo, createdAt, updatedAt
-- `WorkoutSessions` - with headers: id, date, startTime, endTime, exercises, totalVolume, memo, createdAt, updatedAt
-- `ExerciseMaster` - with headers: id, name, bodyPart, isCompound, isCustom, createdAt
-- `MealRecords` - with headers: id, date, mealType, items, totalCalories, totalProtein, totalFat, totalCarbs, memo, createdAt, updatedAt
-- `FoodMaster` - with headers: id, name, caloriesPer100g, proteinPer100g, fatPer100g, carbsPer100g, isCustom, createdAt
-
-### 4. Run Development Server
-
-```bash
+# Fill in your Google API credentials
 npm run dev
 ```
 
-The app will be available at `http://localhost:3000`.
-
 ## Technology Stack
 
-- **React 19** - UI library
-- **TypeScript 5** - Type safety
-- **Vite 5** - Build tool
-- **Tailwind CSS 3** - Styling
-- **React Router 7** - Routing
-- **Recharts 3** - Charting (planned)
-- **date-fns 4** - Date manipulation
-- **Lucide React** - Icons
+- **React / TypeScript / Vite**
+- **Tailwind CSS** (Monochrome Dark Theme)
+- **Recharts** (High-precision performance charts)
+- **Google Sheets API** (Data persistence)
